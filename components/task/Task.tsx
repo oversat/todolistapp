@@ -9,6 +9,7 @@ interface TaskProps {
   disabled?: boolean;
   notes?: string;
   due_date?: string;
+  created_at: string;
   onComplete?: () => void;
   onEdit?: () => void;
   onDelete?: () => void;
@@ -23,6 +24,7 @@ export function Task({
   disabled,
   notes = '',
   due_date,
+  created_at,
   onComplete,
   onEdit,
   onDelete,
@@ -36,8 +38,8 @@ export function Task({
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [localDueDate, setLocalDueDate] = useState(due_date || '');
   const [isSavingDate, setIsSavingDate] = useState(false);
-  const createdDate = new Date().toLocaleDateString();
-  const createdTime = new Date().toLocaleTimeString([], { 
+  const createdDate = new Date(created_at).toLocaleDateString();
+  const createdTime = new Date(created_at).toLocaleTimeString([], { 
     hour: '2-digit', 
     minute: '2-digit' 
   });
@@ -95,7 +97,7 @@ export function Task({
       completed && 'opacity-50'
     )}>
       {/* Title Bar */}
-      <div className="bg-[#000080] text-white px-2 py-1 flex items-center justify-between relative z-10">
+      <div className="bg-[#000080] text-white px-2 py-1 flex items-center justify-between relative z-[30]">
         <span className="font-bold text-xs truncate flex-1">{text}</span>
         <div className="flex gap-1">
           {!disabled && (
@@ -136,7 +138,7 @@ export function Task({
       </div>
 
       {/* Content Area */}
-      <div className="p-2 space-y-1 flex-1 flex flex-col text-xs relative z-0">
+      <div className="p-2 space-y-1 flex-1 flex flex-col text-xs relative z-[20]">
         <div className="flex items-start gap-2">
           {/* Checkbox */}
           <button
@@ -154,7 +156,7 @@ export function Task({
           <div className="flex-1 space-y-1 min-w-0">
             {/* Date Picker */}
             {showDatePicker && (
-              <div className="space-y-1 absolute left-0 right-0 bg-gray-200 border border-gray-400 p-2 shadow-lg z-20">
+              <div className="space-y-1 absolute left-0 right-0 bg-gray-200 border border-gray-400 p-2 shadow-lg z-[40]">
                 <input
                   type="date"
                   value={localDueDate}
@@ -178,21 +180,34 @@ export function Task({
             
             {/* Notes Section */}
             {showNotes && (
-              <div className="absolute left-0 right-0 bg-gray-200 border border-gray-400 p-2 shadow-lg z-20">
+              <div className="absolute left-0 right-0 bg-gray-200 border border-gray-400 p-2 shadow-lg z-[40]">
                 <textarea
                   value={localNotes}
                   onChange={handleNotesChange}
-                  onBlur={handleSaveNotes}
-                  className="w-full h-20 text-[10px] p-1 border border-gray-400 bg-white text-black resize-none"
+                  className="w-full h-20 text-[10px] p-1 border border-gray-400 bg-white text-black resize-none mb-2"
                   placeholder="Add notes..."
                 />
+                {hasUnsavedNotes && (
+                  <button
+                    onClick={handleSaveNotes}
+                    disabled={isSaving}
+                    className={cn(
+                      "w-full text-[10px] py-0.5 px-2 transition-colors text-center",
+                      isSaving 
+                        ? "bg-gray-400 text-gray-600 cursor-not-allowed"
+                        : "bg-[#000080] text-white hover:bg-[#1084d0]"
+                    )}
+                  >
+                    {isSaving ? "SAVING..." : "SAVE CHANGES"}
+                  </button>
+                )}
               </div>
             )}
           </div>
         </div>
 
         {/* Timestamps */}
-        <div className="space-y-0.5">
+        <div className="space-y-0.5 mt-2">
           <div className="text-[8px] text-gray-500 font-mono">
             Created: {createdDate} {createdTime}
           </div>

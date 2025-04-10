@@ -104,15 +104,20 @@ export default function Home() {
   const [selectedChibiType, setSelectedChibiType] = useState<keyof typeof CHIBI_IMAGES>('pink');
   const [newChibiName, setNewChibiName] = useState('');
   const [showCreateForm, setShowCreateForm] = useState(false);
+  const [completingTaskId, setCompletingTaskId] = useState<string | null>(null);
 
   const chibiImageRef = useRef<HTMLDivElement>(null);
 
   const handleTaskComplete = (taskId: string) => {
-    completeTask(taskId);
+    setCompletingTaskId(taskId);
     setShowFeedDialog(true);
   };
 
   const handleFeedChibi = () => {
+    if (completingTaskId) {
+      completeTask(completingTaskId);
+      setCompletingTaskId(null);
+    }
     feedChibi();
     if (chibiImageRef.current) {
       showEmojis(chibiImageRef.current);
@@ -506,7 +511,10 @@ export default function Home() {
       {/* Dialogs */}
       <FeedDialog
         isOpen={showFeedDialog}
-        onClose={() => setShowFeedDialog(false)}
+        onClose={() => {
+          setShowFeedDialog(false);
+          setCompletingTaskId(null);
+        }}
         onFeed={handleFeedChibi}
       />
 
