@@ -224,3 +224,161 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 - Inspired by the Y2K aesthetic and chibi culture
 - Built with ❤️ for PeachHacks 2025
+
+## Component Overview 🧩
+
+### Chibi Components
+- **`ChibiList.tsx`**: Main component that displays all user's chibis in a grid layout. Handles fetching chibis from Supabase, displays their stats (happiness/energy), and manages the create-new-chibi flow. Includes empty state handling and loading states.
+
+- **`Chibi.tsx`**: Individual chibi display component. Renders a single chibi with its image, name, and stat bars (happiness/energy). Includes hover animations and click handlers for interaction.
+
+- **`CreateChibiForm.tsx`**: Form component for creating new chibis. Handles name input, type selection (cat, dog, bunny, fox, panda), and Supabase integration for saving new chibis.
+
+- **`FeedDialog.tsx`**: Modal dialog that appears when completing tasks, offering the option to feed your chibi. Features Y2K-style animations and sound effects.
+
+### Task Components
+- **`TaskForm.tsx`**: Comprehensive task creation form with fields for title, description, due date, and notes. Integrates with Supabase for task persistence and chibi association.
+
+- **`Task.tsx`**: Individual task display component with Windows 95-style design. Features:
+  - Title bar with minimize/edit/delete controls
+  - Task completion checkbox
+  - Description and due date display
+  - Collapsible notes section
+  - Creation timestamp
+  - Real-time note saving
+
+### Authentication
+- **`AuthForm.tsx`**: Handles user authentication with multiple modes:
+  - Sign up with email/password/username
+  - Sign in with existing credentials
+  - Guest login option
+  - Email verification flow
+  - Form validation and error handling
+  - Toast notifications for feedback
+
+### Infrastructure
+- **`supabase.ts`**: Core configuration file that initializes the Supabase client with environment variables. Enables:
+  - Database operations
+  - Authentication services
+  - Real-time subscriptions
+  - File storage access
+
+Each component follows the Y2K aesthetic guidelines with:
+- Retro Windows 95/DOS visual style
+- Neon color palette
+- Grid backgrounds and scanline effects
+- Classic terminal fonts
+- Animated effects and transitions
+
+## Data Visualization & Tracking 📊
+
+The application uses sophisticated data visualization components to track chibi well-being and task completion patterns:
+
+### Chart Component Usage
+- **Chibi Health Trends**:
+  - Line chart showing happiness and energy levels over time
+  - Color-coded indicators (green for healthy, yellow for warning, red for critical)
+  - Daily/weekly/monthly view options
+  - Animated transitions between data points
+
+- **Task Completion Analytics**:
+  - Bar chart displaying completed vs. pending tasks
+  - Stacked bars showing task distribution by category
+  - Interactive tooltips showing detailed statistics
+  - Custom theme support for light/dark modes
+
+### Progress Component Usage
+- **Chibi Status Bars**:
+  - Real-time progress bars for happiness and energy
+  - Animated transitions when values change
+  - Color gradients indicating status (green → yellow → red)
+  - Pulsing animation when values are critically low
+
+- **Task Completion Tracking**:
+  - Progress bars for daily task completion goals
+  - Visual feedback when tasks are completed
+  - Animated fill effects for satisfying feedback
+  - Customizable thresholds for different achievement levels
+
+### Calendar Component Usage
+- **Task Scheduling**:
+  - Interactive calendar for setting task due dates
+  - Visual indicators for days with pending tasks
+  - Color-coded dots showing task completion status
+  - Quick-add task functionality from calendar view
+
+- **Chibi Care Schedule**:
+  - Markers for last feeding times
+  - Reminders for regular chibi care activities
+  - Visual timeline of chibi interactions
+  - Custom styling for important dates
+
+### Technical Implementation
+1. **Data Collection**:
+   ```typescript
+   interface ChibiStats {
+     happiness: number;
+     energy: number;
+     last_fed: Date;
+     tasks_completed: number;
+   }
+   ```
+
+2. **Chart Configuration**:
+   ```typescript
+   const chartConfig = {
+     happiness: {
+       label: 'Happiness',
+       theme: {
+         light: '#4CAF50',
+         dark: '#81C784'
+       }
+     },
+     energy: {
+       label: 'Energy',
+       theme: {
+         light: '#2196F3',
+         dark: '#64B5F6'
+       }
+     }
+   };
+   ```
+
+3. **Progress Tracking**:
+   ```typescript
+   const calculateProgress = (current: number, max: number) => {
+     return Math.min(100, (current / max) * 100);
+   };
+   ```
+
+4. **Calendar Integration**:
+   ```typescript
+   const taskDates = {
+     due: Date[];
+     completed: Date[];
+     feeding: Date[];
+   };
+   ```
+
+### Visual Feedback System
+- **Positive Reinforcement**:
+  - Happy chibi animations when tasks are completed
+  - Sparkle effects when progress bars fill
+  - Celebration animations for streaks and achievements
+
+- **Warning Indicators**:
+  - Pulsing red alerts when stats are low
+  - Warning messages in DOS-style popups
+  - Sad chibi animations when neglect is detected
+
+- **Progress Celebrations**:
+  - Level-up animations when milestones are reached
+  - Achievement popups with retro styling
+  - Sound effects for significant events
+
+This data visualization system creates an engaging feedback loop where:
+1. Users complete tasks
+2. Chibi stats are updated in real-time
+3. Visual feedback reinforces positive behavior
+4. Historical data helps users track their progress
+5. The calendar keeps everything organized and on schedule
