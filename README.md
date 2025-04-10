@@ -540,3 +540,114 @@ export interface ChartData {
 └── calendar/
     └── TaskCalendar.test.tsx
 ```
+
+## Jeremiah - Create Tasks to Personalize Chibi Feature 🎨
+
+A unique gamification system that rewards task completion with chibi customization options. Each completed task unlocks new personalization features for your chibi companion.
+
+### Unlock System 🔓
+
+1. **Base Color** (1 Task)
+   - Unlocked after completing first task
+   - Choose from:
+     - Neon Pink (#ff64d6)
+     - Cyber Blue (#00c2ff)
+     - Digital Purple (#b967ff)
+     - Matrix Green (#33ff33)
+     - Virtual Yellow (#ffff00)
+
+2. **Personality** (2 Tasks)
+   - Unlocked after completing two tasks
+   - Affects chibi's expressions and animations
+   - Options:
+     - Happy (default smile)
+     - Energetic (star eyes)
+     - Sleepy (droopy eyes)
+     - Shy (blushing)
+     - Confident (sunglasses)
+
+3. **Background** (3 Tasks)
+   - Unlocked after completing three tasks
+   - Choose environment:
+     - Retro Computer Lab
+     - Pixel City
+     - Digital Space
+     - Cyber Garden
+     - Virtual Classroom
+
+4. **Accessories** (4 Tasks)
+   - Unlocked after completing four tasks
+   - Multiple selections allowed
+   - Categories:
+     - Hats/Hair Accessories
+     - Face Items
+     - Held Items
+     - Special Effects
+
+### Technical Implementation 🛠️
+
+1. **Database Schema Updates**:
+   ```sql
+   ALTER TABLE chibis
+   ADD COLUMN customization jsonb DEFAULT json_build_object(
+     'base_color', 'pink',
+     'personality', 'happy',
+     'background', 'retro',
+     'accessories', ARRAY[]::text[],
+     'unlocked_features', ARRAY[]::text[]
+   );
+   ```
+
+2. **Window Integration**:
+   - Customization icons appear in window title bar
+   - Icons show locked/unlocked state
+   - Hover tooltips show unlock requirements
+   - Celebration animations on unlocks
+
+3. **Progress Tracking**:
+   - Visual progress indicators
+   - Task completion counter
+   - Unlock celebration effects
+   - Persistent customization state
+
+### User Interface 🖥️
+
+1. **Window Header**:
+   ```
+   +----------------------------------------+
+   | Title    🎨 😊 🖼️ 👒           _ □ X |
+   |----------------------------------------|
+   |               Content                   |
+   |                                        |
+   +----------------------------------------+
+   ```
+   - Icons show locked (gray) or unlocked (colored) state
+   - Hover reveals unlock requirements
+   - Click opens customization panel when unlocked
+
+2. **Customization Panel**:
+   - Windows 95-style interface
+   - Real-time preview
+   - Save/Cancel buttons
+   - Category tabs for organization
+
+### Gamification Elements 🎮
+
+1. **Progressive Unlocks**:
+   - Each task completion brings new customization options
+   - Visual feedback on progress
+   - Celebration animations for unlocks
+   - Achievement notifications
+
+2. **Motivation System**:
+   - Clear progress indicators
+   - Immediate rewards for task completion
+   - Visual goal tracking
+   - Persistent customization saves
+
+This feature enhances user engagement by:
+- Creating clear progression goals
+- Providing immediate visual rewards
+- Making task completion more engaging
+- Personalizing the user experience
+- Maintaining the Y2K aesthetic theme

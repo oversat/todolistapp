@@ -165,7 +165,7 @@ export default function Home() {
 
   const createChibiForm = (
     <div className="text-center py-8">
-      <p className="font-vt323 text-xl mb-4">{chibis.length === 0 ? 'No Chibis yet!' : 'Create New Chibi'}</p>
+      <p className="font-vt323 text-xl mb-4 text-black">{chibis.length === 0 ? 'No Chibis yet!' : 'Create New Chibi'}</p>
       <div className="space-y-4">
         <input
           type="text"
@@ -179,7 +179,7 @@ export default function Home() {
             <button
               key={type}
               onClick={() => setSelectedChibiType(type)}
-              className={`w-20 h-20 rounded-lg border-3 overflow-hidden ${
+              className={`w-60 h-60 rounded-lg border-3 overflow-hidden ${
                 selectedChibiType === type ? 'border-pink-500 shadow-glow' : 'border-gray-400'
               }`}
             >
@@ -191,14 +191,16 @@ export default function Home() {
           <button
             onClick={handleCreateChibi}
             disabled={!newChibiName.trim()}
-            className="bg-gray-200 border-2 border-white border-r-gray-600 border-b-gray-600 px-4 py-2"
+            className={`border-2 border-white border-r-gray-600 border-b-gray-600 px-4 py-2 text-black ${
+              newChibiName.trim() ? 'bg-[#ff69b4] shadow-[0_0_10px_#33ff33]' : 'bg-gray-200'
+            }`}
           >
             Create New Chibi
           </button>
           {chibis.length > 0 && (
             <button
               onClick={() => setShowCreateForm(false)}
-              className="bg-gray-300 border-2 border-white border-r-gray-600 border-b-gray-600 px-4 py-2"
+              className="bg-gray-300 border-2 border-white border-r-gray-600 border-b-gray-600 px-4 py-2 text-black"
             >
               Cancel
             </button>
