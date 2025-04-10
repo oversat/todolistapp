@@ -18,6 +18,7 @@ export interface TaskData {
   id: string;
   text: string;
   notes?: string;
+  due_date?: string;
   completed: boolean;
   created_at: string;
   completed_at: string | null;
@@ -99,7 +100,7 @@ export function useChibi() {
   };
 
   // Add a task to current Chibi
-  const addTask = async (text: string, notes: string = '') => {
+  const addTask = async (text: string, notes: string = '', due_date?: string) => {
     if (currentChibiIndex === -1) return;
     const chibi = chibis[currentChibiIndex];
 
@@ -110,6 +111,7 @@ export function useChibi() {
           chibi_id: chibi.id,
           text,
           notes,
+          due_date,
           completed: false
         }]);
 
@@ -263,6 +265,31 @@ export function useChibi() {
     }
   };
 
+  // Update task due date
+  const updateTaskDueDate = async (taskId: string, dueDate: string) => {
+    try {
+      const { error } = await supabase
+        .from('tasks')
+        .update({ due_date: dueDate })
+        .eq('id', taskId);
+
+      if (error) throw error;
+      
+      // Update local state
+      setChibis(prevChibis => 
+        prevChibis.map(chibi => ({
+          ...chibi,
+          tasks: chibi.tasks.map(task =>
+            task.id === taskId ? { ...task, due_date: dueDate } : task
+          )
+        }))
+      );
+    } catch (error) {
+      console.error('Error updating task due date:', error);
+      throw error;
+    }
+  };
+
   return {
     chibis,
     currentChibiIndex,
@@ -276,6 +303,7 @@ export function useChibi() {
     deleteTask,
     editTask,
     updateTaskNotes,
+    updateTaskDueDate,
     resetData,
     fetchChibis
   };

@@ -18,6 +18,9 @@ import { MainLayout } from '@/components/layout/MainLayout';
 import { supabase } from '@/lib/supabase';
 import { signOut } from '@/lib/auth';
 import { useToast } from '@/hooks/use-toast';
+import { AnalyticsDashboard } from '@/components/data/visualization/AnalyticsDashboard';
+import { SleepZoneAnalytics } from '@/components/data/visualization/SleepZoneAnalytics';
+import { ChibiHealthDisplay } from '@/components/data/visualization/ChibiHealthDisplay';
 
 export default function Home() {
   const router = useRouter();
@@ -59,7 +62,8 @@ export default function Home() {
     deleteTask,
     editTask,
     resetData,
-    updateTaskNotes
+    updateTaskNotes,
+    updateTaskDueDate
   } = useChibi();
 
   const { settings, updateSettings } = useSettings();
@@ -255,59 +259,74 @@ export default function Home() {
         <TabsContent value="awake" className="mt-6">
           {currentChibi ? (
             <Window title={`${currentChibi.name}'s Tasks`} className="mb-6">
-              <div className="space-y-6">
-                <div ref={chibiImageRef}>
-                  <Chibi
-                    name={currentChibi.name}
-                    image={currentChibi.image}
-                    happiness={currentChibi.happiness}
-                    energy={currentChibi.energy}
-                  />
+              <div className="h-[100vh] flex flex-col">
+                {/* Top Half - Health Display */}
+                <div className="h-[45vh] flex flex-col space-y-4 p-4 bg-gradient-to-b from-[#000033] to-[#000066]">
+                  {/* Chibi Image */}
+                  <div ref={chibiImageRef} className="flex-shrink-0">
+                    <Chibi
+                      name={currentChibi.name}
+                      image={currentChibi.image}
+                      happiness={currentChibi.happiness}
+                      energy={currentChibi.energy}
+                    />
+                  </div>
+                  
+                  {/* Health Stats */}
+                  <ChibiHealthDisplay chibiId={currentChibi.id} />
                 </div>
 
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    value={newTaskText}
-                    onChange={(e) => setNewTaskText(e.target.value)}
-                    onKeyPress={(e) => e.key === 'Enter' && handleAddTask()}
-                    className="flex-grow px-3 py-2 bg-black text-white font-vt323 text-lg border-2 border-blue-500"
-                    placeholder="Add a new task..."
-                  />
-                  <button
-                    onClick={handleAddTask}
-                    disabled={!newTaskText.trim()}
-                    className="bg-gray-200 border-2 border-white border-r-gray-600 border-b-gray-600 px-4"
-                  >
-                    Add
-                  </button>
-                </div>
+                {/* Bottom Half - Task List */}
+                <div className="flex-1 overflow-auto p-4 bg-[#c3c3c3]">
+                  {/* Task List */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {currentChibi.tasks
+                      .filter((task: { completed: boolean }) => !task.completed)
+                      .map((task) => (
+                        <Task
+                          key={task.id}
+                          {...task}
+                          onComplete={() => handleTaskComplete(task.id)}
+                          onEdit={() => {
+                            setEditingTaskId(task.id);
+                            setShowEditDialog(true);
+                          }}
+                          onDelete={() => {
+                            setDeletingTaskId(task.id);
+                            setShowDeleteDialog(true);
+                          }}
+                          onNotesChange={(notes) => updateTaskNotes(task.id, notes)}
+                          onDueDateChange={(date) => updateTaskDueDate(task.id, date)}
+                        />
+                      ))}
+                  </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                  {currentChibi.tasks
-                    .filter((task: { completed: boolean }) => !task.completed)
-                    .map((task) => (
-                      <Task
-                        key={task.id}
-                        {...task}
-                        onComplete={() => handleTaskComplete(task.id)}
-                        onEdit={() => {
-                          setEditingTaskId(task.id);
-                          setShowEditDialog(true);
-                        }}
-                        onDelete={() => {
-                          setDeletingTaskId(task.id);
-                          setShowDeleteDialog(true);
-                        }}
-                        onNotesChange={(notes) => updateTaskNotes(task.id, notes)}
+                  {/* Add Task Input - Sticky at bottom */}
+                  <div className="sticky bottom-0 bg-[#c3c3c3] p-4 -mx-4 mt-6 border-t border-[#ffffff]">
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        value={newTaskText}
+                        onChange={(e) => setNewTaskText(e.target.value)}
+                        onKeyPress={(e) => e.key === 'Enter' && handleAddTask()}
+                        className="flex-grow px-3 py-2 bg-white border-2 border-[#000080] text-gray-800 font-vt323 text-lg rounded focus:outline-none"
+                        placeholder="Add a new task..."
                       />
-                    ))}
+                      <button
+                        onClick={handleAddTask}
+                        disabled={!newTaskText.trim()}
+                        className="px-4 py-2 bg-[#c3c3c3] text-gray-800 font-vt323 border-2 border-t-white border-l-white border-r-gray-600 border-b-gray-600 hover:bg-[#d4d4d4] transition-colors disabled:opacity-50"
+                      >
+                        Add
+                      </button>
+                    </div>
+                  </div>
                 </div>
               </div>
             </Window>
           ) : (
             <Window title="Select a Chibi" className="mb-6">
-              <p className="text-center py-8 font-vt323 text-xl">
+              <p className="text-center py-8 font-vt323 text-xl text-[#33ff33]">
                 Please select a Chibi first!
               </p>
             </Window>
@@ -318,9 +337,13 @@ export default function Home() {
           {currentChibi ? (
             <Window title="Task Management" className="mb-6">
               <div className="space-y-6">
+                {/* Analytics Charts */}
+                <SleepZoneAnalytics chibiId={currentChibi.id} />
+
+                {/* Completed Tasks */}
                 <div className="space-y-2">
-                  <h3 className="font-pressStart text-lg mb-4">Completed Tasks</h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                  <h3 className="font-vt323 text-lg text-[#33ff33]">Completed Tasks</h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {currentChibi.tasks
                       .filter((task: { completed: any; }) => task.completed)
                       .map(task => (
@@ -333,6 +356,7 @@ export default function Home() {
                             setShowDeleteDialog(true);
                           }}
                           onNotesChange={(notes) => updateTaskNotes(task.id, notes)}
+                          onDueDateChange={(date) => updateTaskDueDate(task.id, date)}
                         />
                       ))}
                   </div>
@@ -340,7 +364,7 @@ export default function Home() {
 
                 <button
                   onClick={cleanCompletedTasks}
-                  className="bg-gray-200 border-2 border-white border-r-gray-600 border-b-gray-600 px-4 py-2 w-full"
+                  className="w-full px-4 py-2 bg-[#33ff33]/20 text-[#33ff33] font-vt323 border border-[#33ff33]/30 hover:bg-[#33ff33]/30 transition-colors rounded"
                 >
                   Clean All Completed
                 </button>
@@ -348,7 +372,7 @@ export default function Home() {
             </Window>
           ) : (
             <Window title="Select a Chibi" className="mb-6">
-              <p className="text-center py-8 font-vt323 text-xl">
+              <p className="text-center py-8 font-vt323 text-xl text-[#33ff33]">
                 Please select a Chibi first!
               </p>
             </Window>
