@@ -22,6 +22,17 @@ import { AnalyticsDashboard } from '@/components/data/visualization/AnalyticsDas
 import { SleepZoneAnalytics } from '@/components/data/visualization/SleepZoneAnalytics';
 import { ChibiHealthDisplay } from '@/components/data/visualization/ChibiHealthDisplay';
 
+// Define z-index layers at the top of the file after imports
+const zLayers = {
+  background: 1,        // Base layer for background elements
+  chibiSvg: 10,        // Chibi character layer
+  windowFrame: 20,      // Window component frame
+  taskBar: 30,         // Task bar with input
+  stats: 40,           // Stats and UI elements
+  dialog: 100,         // Dialogs and modals
+  emojiEffects: 1000   // Top layer for emoji animations
+} as const;
+
 export default function Home() {
   const router = useRouter();
   const { toast } = useToast();
@@ -215,7 +226,7 @@ export default function Home() {
         </TabsList>
 
         <TabsContent value="chibis" className="mt-6">
-          <Window title="CHIBI SELECT" className="mb-6">
+          <Window title="CHIBI SELECT" className="mb-6" zIndex={zLayers.windowFrame}>
             {chibis.length === 0 || showCreateForm ? (
               createChibiForm
             ) : (
@@ -258,52 +269,74 @@ export default function Home() {
 
         <TabsContent value="awake" className="mt-6">
           {currentChibi ? (
-            <Window title={`${currentChibi.name}'s Tasks`} className="mb-6">
-              <div className="h-[100vh] flex flex-col">
-                {/* Top Half - Health Display */}
-                <div className="h-[45vh] flex flex-col space-y-4 p-4 bg-gradient-to-b from-[#000033] to-[#000066]">
-                  {/* Chibi Image */}
-                  <div ref={chibiImageRef} className="flex-shrink-0">
-                    <Chibi
-                      name={currentChibi.name}
-                      image={currentChibi.image}
-                      happiness={currentChibi.happiness}
-                      energy={currentChibi.energy}
-                    />
+            <Window title={`${currentChibi.name}'s Tasks`} className="mb-6" zIndex={zLayers.windowFrame}>
+              <div className="h-screen flex flex-col">
+                {/* Pet Display Area */}
+                <div className="h-[30vh] relative overflow-hidden">
+                  {/* Background Layer */}
+                  <div className="absolute inset-0 bg-[#000080]" style={{ zIndex: 1 }} />
+
+                  {/* Chibi SVG Layer - contained within the window content area */}
+                  <div 
+                    className="absolute inset-0 flex justify-center items-center" 
+                    style={{ zIndex: 2 }}
+                  >
+                    <div 
+                      ref={chibiImageRef} 
+                      className="h-[180px] w-[180px] flex items-center justify-center"
+                    >
+                      <img 
+                        src={currentChibi.image} 
+                        alt={currentChibi.name}
+                        className="w-full h-full object-contain transform scale-150"
+                        style={{ imageRendering: 'pixelated' }}
+                      />
+                    </div>
                   </div>
-                  
-                  {/* Health Stats */}
-                  <ChibiHealthDisplay chibiId={currentChibi.id} />
+
+                  {/* Stats Layer */}
+                  <div 
+                    className="relative h-full p-4" 
+                    style={{ zIndex: 3 }}
+                  >
+                    {/* Task Counts */}
+                    <div className="flex justify-between font-vt323 text-[#33ff33]">
+                      <div>{currentChibi.tasks.filter((t: { completed: boolean }) => t.completed).length} tasks</div>
+                      <div>{currentChibi.tasks.filter((t: { completed: boolean }) => !t.completed).length} todo</div>
+                    </div>
+
+                    {/* Corner Stats */}
+                    <div className="absolute bottom-6 left-6 font-vt323 text-[#33ff33] text-sm">
+                      <div>Energy</div>
+                      <div className="w-24 h-2 bg-[#1a1a1a] rounded-sm overflow-hidden">
+                        <div 
+                          className="h-full bg-[#33ff33]" 
+                          style={{ width: `${currentChibi.energy}%` }}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="absolute bottom-6 right-6 font-vt323 text-[#33ff33] text-sm text-right">
+                      <div>Happy</div>
+                      <div className="flex justify-end">
+                        {[...Array(4)].map((_, i) => (
+                          <span key={i} className={i < Math.round(currentChibi.happiness / 25) ? 'text-[#33ff33]' : 'opacity-30'}>
+                            ♥
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
                 </div>
 
-                {/* Bottom Half - Task List */}
-                <div className="flex-1 overflow-auto p-4 bg-[#c3c3c3]">
-                  {/* Task List */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    {currentChibi.tasks
-                      .filter((task: { completed: boolean }) => !task.completed)
-                      .map((task) => (
-                        <Task
-                          key={task.id}
-                          {...task}
-                          onComplete={() => handleTaskComplete(task.id)}
-                          onEdit={() => {
-                            setEditingTaskId(task.id);
-                            setShowEditDialog(true);
-                          }}
-                          onDelete={() => {
-                            setDeletingTaskId(task.id);
-                            setShowDeleteDialog(true);
-                          }}
-                          onNotesChange={(notes) => updateTaskNotes(task.id, notes)}
-                          onDueDateChange={(date) => updateTaskDueDate(task.id, date)}
-                        />
-                      ))}
-                  </div>
-
-                  {/* Add Task Input - Sticky at bottom */}
-                  <div className="sticky bottom-0 bg-[#c3c3c3] p-4 -mx-4 mt-6 border-t border-[#ffffff]">
-                    <div className="flex gap-2">
+                {/* Task List Area */}
+                <div className="flex-1 bg-[#c3c3c3] overflow-hidden relative">
+                  {/* Task Bar Layer */}
+                  <div 
+                    className="sticky top-0 h-[60px] bg-[#c3c3c3] border-b-2 border-[#808080] flex items-center p-4"
+                    style={{ zIndex: zLayers.taskBar }}
+                  >
+                    <div className="flex gap-2 w-full">
                       <input
                         type="text"
                         value={newTaskText}
@@ -321,11 +354,39 @@ export default function Home() {
                       </button>
                     </div>
                   </div>
+
+                  {/* Scrollable Task List */}
+                  <div 
+                    className="h-[calc(100%-60px)] overflow-y-auto p-4"
+                    style={{ zIndex: zLayers.background }}
+                  >
+                    <div className="grid grid-cols-2 gap-4">
+                      {currentChibi.tasks
+                        .filter((task: { completed: boolean }) => !task.completed)
+                        .map((task) => (
+                          <Task
+                            key={task.id}
+                            {...task}
+                            onComplete={() => handleTaskComplete(task.id)}
+                            onEdit={() => {
+                              setEditingTaskId(task.id);
+                              setShowEditDialog(true);
+                            }}
+                            onDelete={() => {
+                              setDeletingTaskId(task.id);
+                              setShowDeleteDialog(true);
+                            }}
+                            onNotesChange={(notes) => updateTaskNotes(task.id, notes)}
+                            onDueDateChange={(date) => updateTaskDueDate(task.id, date)}
+                          />
+                        ))}
+                    </div>
+                  </div>
                 </div>
               </div>
             </Window>
           ) : (
-            <Window title="Select a Chibi" className="mb-6">
+            <Window title="Select a Chibi" className="mb-6" zIndex={zLayers.windowFrame}>
               <p className="text-center py-8 font-vt323 text-xl text-[#33ff33]">
                 Please select a Chibi first!
               </p>
@@ -335,7 +396,7 @@ export default function Home() {
 
         <TabsContent value="sleep" className="mt-6">
           {currentChibi ? (
-            <Window title="Task Management" className="mb-6">
+            <Window title="Task Management" className="mb-6" zIndex={zLayers.windowFrame}>
               <div className="space-y-6">
                 {/* Analytics Charts */}
                 <SleepZoneAnalytics chibiId={currentChibi.id} />
@@ -371,7 +432,7 @@ export default function Home() {
               </div>
             </Window>
           ) : (
-            <Window title="Select a Chibi" className="mb-6">
+            <Window title="Select a Chibi" className="mb-6" zIndex={zLayers.windowFrame}>
               <p className="text-center py-8 font-vt323 text-xl text-[#33ff33]">
                 Please select a Chibi first!
               </p>
@@ -380,7 +441,7 @@ export default function Home() {
         </TabsContent>
 
         <TabsContent value="settings" className="mt-6">
-          <Window title="Settings.ini" className="mb-6">
+          <Window title="Settings.ini" className="mb-6" zIndex={zLayers.windowFrame}>
             <div className="space-y-4">
               <div className="flex justify-between items-center p-2 bg-black/70 rounded">
                 <span className="font-vt323 text-lg">Dark Theme</span>
