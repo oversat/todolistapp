@@ -1,41 +1,171 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-  <!-- Background -->
-  <rect x="0" y="0" width="100" height="100" rx="10" fill="#fff0f5"/>
-  
-  <!--  device frame -->
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 100 100">
+  <!-- Define animations -->
+  <defs>
+    <!-- Left eye definitions -->
+    <circle id="left-eye-outline" cx="40" cy="35" r="5"/>
+    <mask id="left-eye-mask">
+      <rect x="30" y="25" width="25" height="20" fill="white"/>
+      <use xlink:href="#left-eye-outline" id="left-lid" fill="black">
+        <animate
+          attributeName="transform"
+          type="translate"
+          values="0 0; 0 5; 0 0"
+          dur="4s"
+          repeatCount="indefinite"/>
+      </use>
+    </mask>
+
+    <!-- Right eye definitions -->
+    <circle id="right-eye-outline" cx="60" cy="35" r="5"/>
+    <mask id="right-eye-mask">
+      <rect x="50" y="25" width="25" height="20" fill="white"/>
+      <use xlink:href="#right-eye-outline" id="right-lid" fill="black">
+        <animate
+          attributeName="transform"
+          type="translate"
+          values="0 0; 0 5; 0 0"
+          dur="4s"
+          repeatCount="indefinite"/>
+      </use>
+    </mask>
+  </defs>
+
+  <!-- Device frame -->
   <rect x="20" y="10" width="60" height="80" rx="10" fill="#ff9ee5" stroke="#ff6ec7" stroke-width="2"/>
   <rect x="25" y="15" width="50" height="40" rx="5" fill="#d4f4ff" stroke="#a0e0ff" stroke-width="1"/>
   
-  <!-- Character body -->
-  <rect x="35" y="20" width="30" height="40" rx="15" fill="#ff64d6"/>
-  
-  <!-- Ears/antennas - cat-like -->
-  <path d="M25 28 L35 20 L38 30" fill="#ff64d6"/>
-  <path d="M75 28 L65 20 L62 30" fill="#ff64d6"/>
-  
-  <!-- Eyes -->
-  <circle cx="40" cy="35" r="5" fill="white" stroke="#ffb0e0" stroke-width="0.5"/>
-  <circle cx="60" cy="35" r="5" fill="white" stroke="#ffb0e0" stroke-width="0.5"/>
-  <circle cx="40" cy="35" r="2.5" fill="black"/>
-  <circle cx="60" cy="35" r="2.5" fill="black"/>
-  <circle cx="41.5" cy="33.5" r="1" fill="white"/>
-  <circle cx="61.5" cy="33.5" r="1" fill="white"/>
-  
-  <!-- Blush marks -->
-  <circle cx="33" cy="40" r="3" fill="#ff9eb5" opacity="0.7"/>
-  <circle cx="67" cy="40" r="3" fill="#ff9eb5" opacity="0.7"/>
-  
-  <!-- Smiling mouth - happy -->
-  <path d="M45 45 C48 50 52 50 55 45" stroke="black" stroke-width="1.5" fill="none"/>
-  
-  <!-- Little arms -->
-  <path d="M30 45 C25 48 25 52 28 55" stroke="#ff64d6" stroke-width="4" stroke-linecap="round"/>
-  <path d="M70 45 C75 48 75 52 72 55" stroke="#ff64d6" stroke-width="4" stroke-linecap="round"/>
-  
-  <!-- Little feet -->
-  <ellipse cx="40" cy="60" rx="6" ry="3" fill="#ff64d6"/>
-  <ellipse cx="60" cy="60" rx="6" ry="3" fill="#ff64d6"/>
+  <!-- Character body with hover animation -->
+  <g id="character">
+    <!-- Body -->
+    <rect x="35" y="20" width="30" height="40" rx="15" fill="#ff64d6">
+      <animateTransform
+        attributeName="transform"
+        type="translate"
+        values="0,0; 0,-2; 0,0"
+        dur="2s"
+        repeatCount="indefinite"/>
+    </rect>
+    
+    <!-- Ears/antennas - cat-like with animation -->
+    <path d="M25 28 L35 20 L38 30" fill="#ff64d6">
+      <animateTransform
+        attributeName="transform"
+        type="translate"
+        values="0,0; 0,-3; 0,0"
+        dur="1.5s"
+        repeatCount="indefinite"/>
+      <animateTransform
+        attributeName="transform"
+        type="rotate"
+        values="-2,35,28; 2,35,28; -2,35,28"
+        dur="3s"
+        additive="sum"
+        repeatCount="indefinite"/>
+    </path>
+    <path d="M75 28 L65 20 L62 30" fill="#ff64d6">
+      <animateTransform
+        attributeName="transform"
+        type="translate"
+        values="0,0; 0,-3; 0,0"
+        dur="1.5s"
+        repeatCount="indefinite"/>
+      <animateTransform
+        attributeName="transform"
+        type="rotate"
+        values="2,65,28; -2,65,28; 2,65,28"
+        dur="3s"
+        additive="sum"
+        repeatCount="indefinite"/>
+    </path>
+    
+    <!-- Eyes with natural blink -->
+    <g id="eyes">
+      <!-- Left eye -->
+      <g>
+        <use xlink:href="#left-eye-outline" fill="white" stroke="#ffb0e0" stroke-width="0.5"/>
+        <use xlink:href="#left-eye-outline" mask="url(#left-eye-mask)" fill="white"/>
+        <!-- Left pupil -->
+        <circle cx="40" cy="35" r="2.5" fill="black"/>
+        <!-- Left highlight -->
+        <circle cx="41.5" cy="33.5" r="1" fill="white"/>
+      </g>
+      
+      <!-- Right eye -->
+      <g>
+        <use xlink:href="#right-eye-outline" fill="white" stroke="#ffb0e0" stroke-width="0.5"/>
+        <use xlink:href="#right-eye-outline" mask="url(#right-eye-mask)" fill="white"/>
+        <!-- Right pupil -->
+        <circle cx="60" cy="35" r="2.5" fill="black"/>
+        <!-- Right highlight -->
+        <circle cx="61.5" cy="33.5" r="1" fill="white"/>
+      </g>
+    </g>
+    
+    <!-- Blush marks -->
+    <circle cx="33" cy="40" r="3" fill="#ff9eb5" opacity="0.7">
+      <animateTransform
+        attributeName="transform"
+        type="translate"
+        values="0,0; 0,-2; 0,0"
+        dur="2s"
+        repeatCount="indefinite"/>
+    </circle>
+    <circle cx="67" cy="40" r="3" fill="#ff9eb5" opacity="0.7">
+      <animateTransform
+        attributeName="transform"
+        type="translate"
+        values="0,0; 0,-2; 0,0"
+        dur="2s"
+        repeatCount="indefinite"/>
+    </circle>
+    
+    <!-- Smiling mouth - happy -->
+    <path d="M45 45 C48 50 52 50 55 45" stroke="black" stroke-width="1.5" fill="none">
+      <animateTransform
+        attributeName="transform"
+        type="translate"
+        values="0,0; 0,-2; 0,0"
+        dur="2s"
+        repeatCount="indefinite"/>
+    </path>
+    
+    <!-- Little arms with unique pulse -->
+    <path d="M30 45 C25 48 25 52 28 55" stroke="#ff64d6" stroke-width="4" stroke-linecap="round">
+      <animateTransform
+        attributeName="transform"
+        type="translate"
+        values="0,0; -1,-1; 0,0"
+        dur="1.7s"
+        repeatCount="indefinite"/>
+      <animateTransform
+        attributeName="transform"
+        type="rotate"
+        values="-3,30,45; 3,30,45; -3,30,45"
+        dur="2.5s"
+        additive="sum"
+        repeatCount="indefinite"/>
+    </path>
+    <path d="M70 45 C75 48 75 52 72 55" stroke="#ff64d6" stroke-width="4" stroke-linecap="round">
+      <animateTransform
+        attributeName="transform"
+        type="translate"
+        values="0,0; 1,-1; 0,0"
+        dur="1.7s"
+        repeatCount="indefinite"/>
+      <animateTransform
+        attributeName="transform"
+        type="rotate"
+        values="3,70,45; -3,70,45; 3,70,45"
+        dur="2.5s"
+        additive="sum"
+        repeatCount="indefinite"/>
+    </path>
+    
+    <!-- Little feet (no animation) -->
+    <ellipse cx="40" cy="60" rx="6" ry="3" fill="#ff64d6"/>
+    <ellipse cx="60" cy="60" rx="6" ry="3" fill="#ff64d6"/>
+  </g>
   
   <!-- Tamagotchi device buttons -->
   <circle cx="35" cy="70" r="3" fill="#ff6ec7" stroke="#ff4eb8" stroke-width="1"/>
