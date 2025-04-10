@@ -10,6 +10,7 @@ interface SleepZoneAnalyticsProps {
     completed: boolean;
     notes?: string;
     due_date?: string;
+    created_at: string;
   }>;
   onDeleteTask?: (id: string) => void;
   onNotesChange?: (id: string, notes: string) => void;

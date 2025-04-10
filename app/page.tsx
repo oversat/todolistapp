@@ -404,29 +404,13 @@ export default function Home() {
             <Window title="Task Management" className="mb-6" zIndex={zLayers.windowFrame}>
               <div className="space-y-6">
                 {/* Analytics Charts */}
-                <SleepZoneAnalytics chibiId={currentChibi.id} />
-
-                {/* Completed Tasks */}
-                <div className="space-y-2">
-                  <h3 className="font-vt323 text-lg text-[#33ff33]">Completed Tasks</h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    {currentChibi.tasks
-                      .filter((task: { completed: any; }) => task.completed)
-                      .map(task => (
-                        <Task
-                          key={task.id}
-                          {...task}
-                          disabled
-                          onDelete={() => {
-                            setDeletingTaskId(task.id);
-                            setShowDeleteDialog(true);
-                          }}
-                          onNotesChange={(notes) => updateTaskNotes(task.id, notes)}
-                          onDueDateChange={(date) => updateTaskDueDate(task.id, date)}
-                        />
-                      ))}
-                  </div>
-                </div>
+                <SleepZoneAnalytics 
+                  chibiId={currentChibi.id}
+                  completedTasks={currentChibi.tasks.filter((task: { completed: boolean }) => task.completed)}
+                  onDeleteTask={deleteTask}
+                  onNotesChange={updateTaskNotes}
+                  onDueDateChange={updateTaskDueDate}
+                />
 
                 <button
                   onClick={cleanCompletedTasks}
