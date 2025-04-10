@@ -25,6 +25,9 @@
     --ring: 0 0% 3.9%;
     --radius: 0.5rem;
     --retro-green: #33ff33;
+    --hot-pink: #ff6ad5;
+    --neon-blue: #00c2ff;
+    --neon-purple: #b967ff;
     --text-color: #000000;
   }
 
@@ -57,8 +60,11 @@
     @apply border-border;
   }
   body {
-    @apply bg-dark-blue;
-    color: var(--text-color);
+    @apply bg-[#000033] text-white;
+    background-image: 
+      radial-gradient(circle at 50% 50%, rgba(255, 106, 213, 0.1) 0%, transparent 50%),
+      radial-gradient(circle at 100% 0%, rgba(0, 194, 255, 0.1) 0%, transparent 50%),
+      radial-gradient(circle at 0% 100%, rgba(185, 103, 255, 0.1) 0%, transparent 50%);
   }
 }
 
@@ -81,13 +87,77 @@
   background-size: 50px 50px;
 }
 
-:root {
-  --hot-pink: #ff6ad5;
-  --neon-blue: #00c2ff;
-  --neon-purple: #b967ff;
-  --neon-yellow: #ffff00;
-  --dark-blue: #000033;
-  --grid-color: rgba(0, 194, 255, 0.3);
+/* LCD Display */
+.lcd-display {
+  background: #9ba1a8;
+  border: 2px solid;
+  border-top-color: #2d2d2d;
+  border-left-color: #2d2d2d;
+  border-right-color: #ffffff;
+  border-bottom-color: #ffffff;
+  font-family: 'VT323', monospace;
+  color: var(--retro-green);
+}
+
+/* Vaporwave Window */
+.vaporwave-window {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+}
+
+.vaporwave-window-title {
+  background: linear-gradient(to right, #2b2b2b, #1a1a1a);
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+  padding: 8px;
+}
+
+/* Animations */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes glow {
+  0%, 100% {
+    filter: drop-shadow(0 0 5px var(--hot-pink));
+  }
+  50% {
+    filter: drop-shadow(0 0 15px var(--neon-blue));
+  }
+}
+
+.animate-glow {
+  animation: glow 4s ease-in-out infinite;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(to bottom, var(--hot-pink), var(--neon-blue));
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(to bottom, var(--neon-purple), var(--hot-pink));
 }
 
 @layer components {
