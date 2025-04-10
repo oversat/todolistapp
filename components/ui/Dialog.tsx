@@ -12,7 +12,7 @@ interface DialogProps {
 interface DialogButtonProps {
   children: React.ReactNode;
   onClick: () => void;
-  variant?: 'primary' | 'secondary';
+  variant?: 'primary' | 'secondary' | 'danger';
   disabled?: boolean;
 }
 
@@ -44,7 +44,8 @@ export function DialogButton({ children, onClick, variant = 'primary', disabled 
       className={cn(
         "px-6 py-2 font-vt323 text-lg transition-colors",
         variant === 'primary' && "bg-blue-500 text-white hover:bg-blue-600 disabled:opacity-50",
-        variant === 'secondary' && "bg-gray-200 text-black hover:bg-gray-300"
+        variant === 'secondary' && "bg-gray-200 text-black hover:bg-gray-300",
+        variant === 'danger' && "bg-red-500 text-white hover:bg-red-600"
       )}
     >
       {children}
