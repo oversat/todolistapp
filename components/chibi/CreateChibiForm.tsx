@@ -7,7 +7,8 @@ import { Label } from '@/components/elements/label';
 import { Card } from '@/components/layout/card';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/lib/supabase';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/form/select';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@radix-ui/react-select';
+import { PostgrestError } from '@supabase/supabase-js';
 
 const CHIBI_TYPES = [
   { value: 'cat', label: 'Cat' },
@@ -52,7 +53,7 @@ export function CreateChibiForm() {
 
       // Reset form
       setFormData({ name: '', type: '' });
-    } catch (error) {
+    } catch (error: PostgrestError | Error) {
       toast({
         title: 'Error',
         description: error.message,
