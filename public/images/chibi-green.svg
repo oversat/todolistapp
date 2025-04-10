@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- Background -->
+  <rect x="0" y="0" width="100" height="100" rx="10" fill="#f0fff0"/>
+  
+  <!--  device frame -->
+  <rect x="20" y="10" width="60" height="80" rx="10" fill="#ff9ee5" stroke="#ff6ec7" stroke-width="2"/>
+  <rect x="25" y="15" width="50" height="40" rx="5" fill="#d4f4ff" stroke="#a0e0ff" stroke-width="1"/>
+  
+  <!-- Character body -->
+  <rect x="35" y="20" width="30" height="40" rx="15" fill="#33ff33"/>
+  
+  <!-- Ears/antennas - droopy -->
+  <path d="M25 28 L32 25 L35 32" fill="#33ff33"/>
+  <path d="M75 28 L68 25 L65 32" fill="#33ff33"/>
+  
+  <!-- Eyes -->
+  <circle cx="40" cy="35" r="5" fill="white" stroke="#80d8ff" stroke-width="0.5"/>
+  <circle cx="60" cy="35" r="5" fill="white" stroke="#80d8ff" stroke-width="0.5"/>
+  <circle cx="40" cy="35" r="2.5" fill="black"/>
+  <circle cx="60" cy="35" r="2.5" fill="black"/>
+  <circle cx="41.5" cy="33.5" r="1" fill="white"/>
+  <circle cx="61.5" cy="33.5" r="1" fill="white"/>
+  
+  <!-- Blush marks -->
+  <circle cx="33" cy="40" r="3" fill="#ff9eb5" opacity="0.7"/>
+  <circle cx="67" cy="40" r="3" fill="#ff9eb5" opacity="0.7"/>
+  
+  <!-- Smiling mouth - sleepy -->
+  <path d="M45 45 C48 44 52 44 55 45" stroke="black" stroke-width="1.5" fill="none"/>
+  
+  <!-- Little arms -->
+  <path d="M30 45 C25 48 25 52 28 55" stroke="#33ff33" stroke-width="4" stroke-linecap="round"/>
+  <path d="M70 45 C75 48 75 52 72 55" stroke="#33ff33" stroke-width="4" stroke-linecap="round"/>
+  
+  <!-- Little feet -->
+  <ellipse cx="40" cy="60" rx="6" ry="3" fill="#33ff33"/>
+  <ellipse cx="60" cy="60" rx="6" ry="3" fill="#33ff33"/>
+  
+  <!-- Tamagotchi device buttons -->
+  <circle cx="35" cy="70" r="3" fill="#ff6ec7" stroke="#ff4eb8" stroke-width="1"/>
+  <circle cx="50" cy="70" r="3" fill="#ff6ec7" stroke="#ff4eb8" stroke-width="1"/>
+  <circle cx="65" cy="70" r="3" fill="#ff6ec7" stroke="#ff4eb8" stroke-width="1"/>
+</svg>
