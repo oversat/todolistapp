@@ -382,3 +382,157 @@ This data visualization system creates an engaging feedback loop where:
 3. Visual feedback reinforces positive behavior
 4. Historical data helps users track their progress
 5. The calendar keeps everything organized and on schedule
+
+## Required Implementation Files for Data Visualization 📊
+
+### New Components
+```typescript
+// components/data/visualization/
+├── stats/
+│   ├── ChibiHealthChart.tsx      // Line chart for happiness/energy trends
+│   ├── TaskAnalyticsChart.tsx    // Bar chart for task completion
+│   └── StatsOverview.tsx         // Combined stats dashboard
+├── progress/
+│   ├── ChibiStatusBar.tsx        // Custom progress bar for chibi stats
+│   ├── TaskProgressBar.tsx       // Progress indicator for tasks
+│   └── ProgressContainer.tsx     // Wrapper for multiple progress bars
+└── calendar/
+    ├── TaskCalendar.tsx          // Enhanced calendar with task integration
+    ├── DateIndicator.tsx         // Custom date status indicators
+    └── CalendarLegend.tsx        // Calendar status explanations
+```
+
+### Types and Interfaces
+```typescript
+// types/stats.d.ts
+export interface ChibiStats {
+  id: string;
+  happiness: number;
+  energy: number;
+  last_fed: Date;
+  tasks_completed: number;
+}
+
+export interface TaskStats {
+  total: number;
+  completed: number;
+  pending: number;
+  by_category: Record<string, number>;
+}
+
+export interface ChartData {
+  timestamp: Date;
+  happiness: number;
+  energy: number;
+  tasks_completed: number;
+}
+```
+
+### Hooks and Utils
+```typescript
+// hooks/
+├── useChartData.ts          // Custom hook for chart data management
+├── useProgressCalculation.ts // Progress calculation utilities
+└── useCalendarEvents.ts     // Calendar event management
+
+// lib/stats/
+├── chartConfigs.ts          // Chart configuration and themes
+├── progressUtils.ts         // Progress bar utilities
+└── dateFormatters.ts        // Date formatting helpers
+```
+
+### Integration Files
+```typescript
+// lib/api/
+├── stats/
+│   ├── queries.ts           // Supabase queries for stats
+│   └── mutations.ts         // Stats update operations
+└── realtime/
+    └── statsSubscription.ts // Real-time stats updates
+```
+
+### Required Dependencies
+```json
+{
+  "dependencies": {
+    "recharts": "^2.10.3",        // Already available in chart.tsx
+    "react-day-picker": "^8.9.1", // Already available in calendar.tsx
+    "@radix-ui/react-progress": "^1.0.3", // Already available in progress.tsx
+    "date-fns": "^2.30.0",        // For date manipulation
+    "zustand": "^4.4.7"           // For state management
+  }
+}
+```
+
+### Implementation Steps
+
+1. **Core Components Setup**
+   ```typescript
+   // Example: components/data/visualization/stats/ChibiHealthChart.tsx
+   import { ChartContainer } from '../../chart';
+   
+   export function ChibiHealthChart({ chibiId }: { chibiId: string }) {
+     return (
+       <ChartContainer
+         config={{
+           happiness: {
+             label: 'Happiness',
+             theme: { light: '#4CAF50', dark: '#81C784' }
+           },
+           energy: {
+             label: 'Energy',
+             theme: { light: '#2196F3', dark: '#64B5F6' }
+           }
+         }}
+       >
+         {/* Chart implementation */}
+       </ChartContainer>
+     );
+   }
+   ```
+
+2. **Progress Bar Integration**
+   ```typescript
+   // Example: components/data/visualization/progress/ChibiStatusBar.tsx
+   import { Progress } from '../../progress';
+   
+   export function ChibiStatusBar({ value, type }: { value: number, type: 'happiness' | 'energy' }) {
+     return (
+       <Progress
+         value={value}
+         className={`${type === 'happiness' ? 'bg-neon-pink' : 'bg-neon-blue'}`}
+       />
+     );
+   }
+   ```
+
+3. **Calendar Enhancement**
+   ```typescript
+   // Example: components/data/visualization/calendar/TaskCalendar.tsx
+   import { Calendar } from '../../calendar';
+   
+   export function TaskCalendar({ tasks, onDateSelect }: TaskCalendarProps) {
+     return (
+       <Calendar
+         mode="single"
+         selected={selected}
+         onSelect={onDateSelect}
+         modifiers={{
+           task: tasks.map(task => task.due_date)
+         }}
+       />
+     );
+   }
+   ```
+
+### Testing Requirements
+```typescript
+// __tests__/data/visualization/
+├── stats/
+│   ├── ChibiHealthChart.test.tsx
+│   └── TaskAnalytics.test.tsx
+├── progress/
+│   └── StatusBars.test.tsx
+└── calendar/
+    └── TaskCalendar.test.tsx
+```
