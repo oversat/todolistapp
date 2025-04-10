@@ -34,12 +34,31 @@ export function CreateChibiForm() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Not authenticated');
 
+      let finalName = formData.name;
+      let counter = 1;
+
+      // Keep checking and incrementing the number until we find an available name
+      while (true) {
+        const { data: existingChibis, error: checkError } = await supabase
+          .from('chibis')
+          .select('name')
+          .eq('user_id', user.id)
+          .eq('name', finalName);
+
+        if (checkError) throw checkError;
+        if (!existingChibis || existingChibis.length === 0) break;
+
+        // If name exists, append the next number
+        finalName = `${formData.name}${counter.toString().padStart(2, '0')}`;
+        counter++;
+      }
+
       const { error } = await supabase
         .from('chibis')
         .insert([
           {
             user_id: user.id,
-            name: formData.name,
+            name: finalName,
             type: formData.type,
           },
         ]);
@@ -48,7 +67,7 @@ export function CreateChibiForm() {
 
       toast({
         title: 'Success!',
-        description: 'Your new chibi has been created!',
+        description: `Your new chibi "${finalName}" has been created!`,
       });
 
       // Reset form
