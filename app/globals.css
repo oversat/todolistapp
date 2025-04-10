@@ -29,6 +29,9 @@
     --neon-blue: #00c2ff;
     --neon-purple: #b967ff;
     --text-color: #000000;
+    --dark-blue-bg: #000033;
+    --grid-color: rgba(0, 194, 255, 0.3);
+    --scanline-color: rgba(0, 0, 0, 0.5);
   }
 
   .dark {
@@ -61,10 +64,56 @@
   }
   body {
     @apply bg-[#000033] text-white;
+    position: relative;
+    overflow-x: hidden;
     background-image: 
       radial-gradient(circle at 50% 50%, rgba(255, 106, 213, 0.1) 0%, transparent 50%),
       radial-gradient(circle at 100% 0%, rgba(0, 194, 255, 0.1) 0%, transparent 50%),
       radial-gradient(circle at 0% 100%, rgba(185, 103, 255, 0.1) 0%, transparent 50%);
+  }
+
+  body::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: 
+      linear-gradient(0deg, transparent, var(--grid-color) 1px, transparent 1px),
+      linear-gradient(90deg, transparent, var(--grid-color) 1px, transparent 1px);
+    background-size: 30px 30px;
+    z-index: -1;
+    perspective: 1000px;
+    transform-style: preserve-3d;
+    animation: grid-movement 15s infinite linear;
+  }
+
+  body::after {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+      to bottom,
+      rgba(0, 0, 0, 0) 0%,
+      var(--scanline-color) 50%,
+      rgba(0, 0, 0, 0) 100%
+    );
+    background-size: 100% 4px;
+    pointer-events: none;
+    z-index: 10;
+  }
+
+  @keyframes grid-movement {
+    0% {
+      background-position: 0 0;
+    }
+    100% {
+      background-position: 30px 30px;
+    }
   }
 }
 
