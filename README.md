@@ -2,10 +2,32 @@
 
 A gamified todo list application with a Y2K aesthetic, featuring cute chibi characters that help you manage your tasks. Built with Next.js, Supabase, and a modern UI component library.
 
+## Recent Updates 🆕
+
+### Data Visualization & Analytics 📊
+- Added comprehensive analytics dashboard
+- Implemented Chibi health tracking with visual charts
+- Enhanced task analytics with completion trends
+- Added sleep zone analytics for completed tasks
+- Integrated real-time health monitoring for chibis
+
+### Visual Enhancements 🎨
+- Implemented CRT effect overlay for authentic Y2K aesthetic
+- Updated Chibi display with improved animations
+- Enhanced task visualization with due date support
+- Improved dialog and toast notifications
+- Streamlined UI components for better performance
+
+### Technical Improvements 🛠️
+- Added due date support to tasks
+- Optimized component structure
+- Updated package dependencies
+- Enhanced type safety
+- Improved error handling
+
 ## Remaining Tasks 🎯
 
 ### Stuff we can do quickly (Simple UI Changes) 🚀
-- Implement scanline effect overlay for CRT aesthetic
 - Add blinking cursor animation for terminal feel
 - Create Windows 95-style button components with 3D border effects
 - Implement basic hover animations for interactive elements
@@ -222,6 +244,7 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ## Acknowledgments 🙏
 
+- Theme: Blast from the Past
 - Inspired by the Y2K aesthetic and chibi culture
 - Built with ❤️ for PeachHacks 2025
 
@@ -272,46 +295,26 @@ Each component follows the Y2K aesthetic guidelines with:
 
 ## Data Visualization & Tracking 📊
 
-The application uses sophisticated data visualization components to track chibi well-being and task completion patterns:
+The application now features a comprehensive data visualization system:
 
-### Chart Component Usage
-- **Chibi Health Trends**:
-  - Line chart showing happiness and energy levels over time
-  - Color-coded indicators (green for healthy, yellow for warning, red for critical)
-  - Daily/weekly/monthly view options
-  - Animated transitions between data points
+### Analytics Dashboard
+- **Chibi Health Tracking**:
+  - Real-time health monitoring
+  - Visual charts for happiness and energy levels
+  - Historical data tracking
+  - Status indicators with color coding
 
-- **Task Completion Analytics**:
-  - Bar chart displaying completed vs. pending tasks
-  - Stacked bars showing task distribution by category
-  - Interactive tooltips showing detailed statistics
-  - Custom theme support for light/dark modes
+- **Task Analytics**:
+  - Completion rate visualization
+  - Due date tracking
+  - Task distribution analysis
+  - Performance metrics
 
-### Progress Component Usage
-- **Chibi Status Bars**:
-  - Real-time progress bars for happiness and energy
-  - Animated transitions when values change
-  - Color gradients indicating status (green → yellow → red)
-  - Pulsing animation when values are critically low
-
-- **Task Completion Tracking**:
-  - Progress bars for daily task completion goals
-  - Visual feedback when tasks are completed
-  - Animated fill effects for satisfying feedback
-  - Customizable thresholds for different achievement levels
-
-### Calendar Component Usage
-- **Task Scheduling**:
-  - Interactive calendar for setting task due dates
-  - Visual indicators for days with pending tasks
-  - Color-coded dots showing task completion status
-  - Quick-add task functionality from calendar view
-
-- **Chibi Care Schedule**:
-  - Markers for last feeding times
-  - Reminders for regular chibi care activities
-  - Visual timeline of chibi interactions
-  - Custom styling for important dates
+- **Sleep Zone Analytics**:
+  - Completed task statistics
+  - Completion patterns
+  - Productivity trends
+  - Achievement tracking
 
 ### Technical Implementation
 1. **Data Collection**:
@@ -321,6 +324,7 @@ The application uses sophisticated data visualization components to track chibi 
      energy: number;
      last_fed: Date;
      tasks_completed: number;
+     due_date?: Date;
    }
    ```
 
