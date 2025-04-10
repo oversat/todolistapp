@@ -30,8 +30,8 @@
     --neon-purple: #b967ff;
     --text-color: #000000;
     --dark-blue-bg: #000033;
-    --grid-color: rgba(0, 194, 255, 0.3);
-    --scanline-color: rgba(0, 0, 0, 0.5);
+    --grid-color: rgba(0, 194, 255, 0.1);
+    --scanline-color: rgba(0, 0, 0, 0.15);
   }
 
   .dark {
@@ -82,11 +82,11 @@
     background: 
       linear-gradient(0deg, transparent, var(--grid-color) 1px, transparent 1px),
       linear-gradient(90deg, transparent, var(--grid-color) 1px, transparent 1px);
-    background-size: 30px 30px;
+    background-size: 40px 40px;
     z-index: -1;
     perspective: 1000px;
     transform-style: preserve-3d;
-    animation: grid-movement 15s infinite linear;
+    animation: grid-movement 20s infinite linear;
   }
 
   body::after {
@@ -102,9 +102,10 @@
       var(--scanline-color) 50%,
       rgba(0, 0, 0, 0) 100%
     );
-    background-size: 100% 4px;
+    background-size: 100% 6px;
     pointer-events: none;
     z-index: 10;
+    opacity: 0.7;
   }
 
   @keyframes grid-movement {
@@ -112,7 +113,7 @@
       background-position: 0 0;
     }
     100% {
-      background-position: 30px 30px;
+      background-position: 40px 40px;
     }
   }
 }
