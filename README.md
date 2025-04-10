@@ -2,6 +2,44 @@
 
 A gamified todo list application with a Y2K aesthetic, featuring cute chibi characters that help you manage your tasks. Built with Next.js, Supabase, and a modern UI component library.
 
+## Remaining Tasks 🎯
+
+### Stuff we can do quickly (Simple UI Changes) 🚀
+- Implement scanline effect overlay for CRT aesthetic
+- Add blinking cursor animation for terminal feel
+- Create Windows 95-style button components with 3D border effects
+- Implement basic hover animations for interactive elements
+- Add DOS-style alert dialogs for system messages
+- Create simple shine animations for buttons and icons
+- Implement basic pulse animations for status indicators
+
+### Medium Hard Stuff (Virtual Pet Features) 🎮
+- Build Chibi onboarding flow with character selection
+- Create animated Chibi health stats display (happiness and energy)
+- Implement task completion reward system with feeding animations
+- Add "Clean All Completed" feature with Chibi cleaning animation
+- Create Sleepy Zone with sleeping/cleaning Chibi animations
+- Build settings page with theme configuration
+- Implement time-based decay system for Chibi stats
+- Add visual feedback system for task completion rewards
+- Create DOS-style windows for different zones
+- Implement basic sound effects system
+
+### If Time Permits ⏳
+- Chibi evolution system based on task completion
+- Achievement system with unlockable badges
+- Statistics dashboard with productivity trends
+- Social features for sharing achievements
+- Voice command integration
+- Recurring task system
+- Mobile app with push notifications
+- Advanced animation system for Chibi interactions
+- Customizable Chibi designs and accessories
+- Advanced sound effects and background music system
+- Detailed Chibi health tracking and care system
+- Task categorization with visual indicators
+- Advanced data visualization for productivity metrics
+
 ## Features ✨
 
 - **Chibi Characters**: Cute companions that make task management fun
@@ -173,56 +211,6 @@ The app uses Supabase for secure authentication:
     └── supabase.ts      # Supabase client configuration
 ```
 
-## Features to be Built 🚧
-
-The following features are planned for future development:
-
-- **Chibi Evolution**: Allow chibis to evolve based on task completion milestones
-- **Task Categories**: Group tasks by categories with unique visual indicators
-- **Achievement System**: Unlock badges and rewards for consistent task completion
-- **Social Features**: Share achievements and compete with friends
-- **Statistics Dashboard**: View productivity trends and chibi health over time
-- **Mobile App**: Native mobile experience with push notifications
-- **Voice Commands**: Add tasks using voice recognition
-- **Recurring Tasks**: Set up daily, weekly, or monthly recurring tasks
-
-## Remaining Tasks 🎯
-
-### Stuff we can do quickly (Simple UI Changes) 🚀
-- Implement scanline effect overlay for CRT aesthetic
-- Add blinking cursor animation for terminal feel
-- Create Windows 95-style button components with 3D border effects
-- Implement basic hover animations for interactive elements
-- Add DOS-style alert dialogs for system messages
-- Create simple shine animations for buttons and icons
-- Implement basic pulse animations for status indicators
-
-### Medium Hard Stuff (Virtual Pet Features) 🎮
-- Build Chibi onboarding flow with character selection
-- Create animated Chibi health stats display (happiness and energy)
-- Implement task completion reward system with feeding animations
-- Add "Clean All Completed" feature with Chibi cleaning animation
-- Create Sleepy Zone with sleeping/cleaning Chibi animations
-- Build settings page with theme configuration
-- Implement time-based decay system for Chibi stats
-- Add visual feedback system for task completion rewards
-- Create DOS-style windows for different zones
-- Implement basic sound effects system
-
-### If Time Permits ⏳
-- Chibi evolution system based on task completion
-- Achievement system with unlockable badges
-- Statistics dashboard with productivity trends
-- Social features for sharing achievements
-- Voice command integration
-- Recurring task system
-- Mobile app with push notifications
-- Advanced animation system for Chibi interactions
-- Customizable Chibi designs and accessories
-- Advanced sound effects and background music system
-- Detailed Chibi health tracking and care system
-- Task categorization with visual indicators
-- Advanced data visualization for productivity metrics
 
 ## Contributing 🤝
 
