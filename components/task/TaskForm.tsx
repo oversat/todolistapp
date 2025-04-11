@@ -14,9 +14,13 @@ import { format } from 'date-fns';
 interface TaskFormProps {
   chibiId: string;
   onTaskCreated?: () => void;
+  onImmediateUpdate?: (update: {
+    deadlineHearts?: number;
+    noteHearts?: number;
+  }) => void;
 }
 
-export function TaskForm({ chibiId, onTaskCreated }: TaskFormProps) {
+export function TaskForm({ chibiId, onTaskCreated, onImmediateUpdate }: TaskFormProps) {
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -48,6 +52,14 @@ export function TaskForm({ chibiId, onTaskCreated }: TaskFormProps) {
         ]);
 
       if (error) throw error;
+
+      // Notify parent of immediate update if needed
+      if (onImmediateUpdate) {
+        onImmediateUpdate({
+          deadlineHearts: formData.dueDate ? 1 : undefined,
+          noteHearts: formData.notes ? 1 : undefined
+        });
+      }
 
       toast({
         title: 'Success!',
