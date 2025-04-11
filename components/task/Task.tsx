@@ -180,7 +180,7 @@ export function Task({
             
             {/* Notes Section */}
             {showNotes && (
-              <div className="absolute left-0 right-0 bg-gray-200 border border-gray-400 p-2 shadow-lg z-[40]">
+              <div className="mt-2 bg-gray-200 border border-gray-400 p-2 shadow-lg">
                 <textarea
                   value={localNotes}
                   onChange={handleNotesChange}
