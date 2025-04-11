@@ -154,38 +154,18 @@ export function ChibiList() {
       )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {chibis.map((chibi) => {
-          console.log('Rendering chibi:', {
-            id: chibi.id,
-            name: chibi.name,
-            type: chibi.type,
-            imagePath: CHIBI_IMAGES[chibi.type as keyof typeof CHIBI_IMAGES]
-          });
-          return (
-            <div key={chibi.id} className="bg-[#c3c3c3] p-4 rounded-lg">
-              <Chibi
-                id={chibi.id}
-                name={chibi.name}
-                image={(() => {
-                  const imagePath = CHIBI_IMAGES[chibi.type as keyof typeof CHIBI_IMAGES];
-                  console.log('Chibi image resolution:', {
-                    name: chibi.name,
-                    type: chibi.type,
-                    resolvedPath: imagePath,
-                    allPaths: CHIBI_IMAGES
-                  });
-                  return imagePath;
-                })()}
-                happiness={chibi.happiness}
-                energy={chibi.energy}
-                onDelete={() => {
-                  console.log('Delete button clicked for chibi:', chibi);
-                  setChibiToDelete(chibi);
-                }}
-              />
-            </div>
-          );
-        })}
+        {chibis.map((chibi) => (
+          <div key={chibi.id} className="bg-[#c3c3c3] p-4 rounded-lg">
+            <Chibi
+              id={chibi.id}
+              name={chibi.name}
+              image={CHIBI_IMAGES[chibi.type as keyof typeof CHIBI_IMAGES]}
+              happiness={chibi.happiness}
+              energy={chibi.energy}
+              onDelete={() => setChibiToDelete(chibi)}
+            />
+          </div>
+        ))}
       </div>
 
       {chibiToDelete && (
