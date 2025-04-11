@@ -106,8 +106,8 @@ export function AwakeZoneHealth({ chibiId, onTaskStatusChange }: AwakeZoneHealth
   useEffect(() => {
     if (stats) {
       setLocalHearts({
-        deadlineHearts: stats.deadlineHearts,
-        noteHearts: stats.noteHearts
+        deadlineHearts: Math.min(stats.deadlineHearts, 4),
+        noteHearts: Math.min(stats.noteHearts, 4)
       });
     }
   }, [stats]);
@@ -149,23 +149,23 @@ export function AwakeZoneHealth({ chibiId, onTaskStatusChange }: AwakeZoneHealth
       <div className="text-[#33ff33] mb-2">Health</div>
       <div className="flex gap-1 justify-end">
         {/* Clock Icons (Due Date) */}
-        {Array.from({ length: localHearts.deadlineHearts }).map((_, index) => (
+        {Array.from({ length: 4 }).map((_, index) => (
           <Clock
             key={`deadline-${index}`}
             className={cn(
               "h-4 w-4 text-[#ff69b4]",
-              "pulse-glow-pink",
+              index < localHearts.deadlineHearts && "pulse-glow-pink",
               showNewIcon.deadline && index === localHearts.deadlineHearts - 1 && "pop-in"
             )}
           />
         ))}
         {/* Message Icons (Notes) */}
-        {Array.from({ length: localHearts.noteHearts }).map((_, index) => (
+        {Array.from({ length: 4 }).map((_, index) => (
           <MessageSquare
             key={`notes-${index}`}
             className={cn(
               "h-4 w-4 text-[#33ff33]",
-              "pulse-glow-green",
+              index < localHearts.noteHearts && "pulse-glow-green",
               showNewIcon.notes && index === localHearts.noteHearts - 1 && "pop-in"
             )}
           />

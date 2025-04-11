@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import Image from 'next/image';
-import { Skull, Heart } from 'lucide-react';
+import { Skull, Clock, MessageSquare } from 'lucide-react';
 import { DeleteChibiDialog } from './DeleteChibiDialog';
 import { useChibiStats } from '@/hooks/useChibiStats';
 import { cn } from '@/lib/utils';
@@ -103,6 +103,10 @@ export function Chibi({ id, name, image, tasks = [], onSelect, onDelete }: Chibi
   const [imageError, setImageError] = useState(false);
   const { stats } = useChibiStats(id || '');
 
+  // Cap the values at 4
+  const cappedDeadlineHearts = Math.min(stats?.deadlineHearts || 0, 4);
+  const cappedNoteHearts = Math.min(stats?.noteHearts || 0, 4);
+
   console.log('Chibi component rendered with props:', { id, name, onDelete });
 
   const handleDeleteClick = (e: React.MouseEvent) => {
@@ -132,22 +136,22 @@ export function Chibi({ id, name, image, tasks = [], onSelect, onDelete }: Chibi
         />
         <div className="absolute top-2 right-10 flex gap-1">
           {Array.from({ length: 4 }).map((_, index) => (
-            <Heart
+            <Clock
               key={`deadline-${index}`}
               className={cn(
-                "h-4 w-4 text-[#ff69b4] fill-[#ff69b4] heart-icon",
-                index < (stats?.deadlineHearts || 0) && "active pulse-glow-pink"
+                "h-4 w-4 text-[#ff69b4] heart-icon",
+                index < cappedDeadlineHearts && "active pulse-glow-pink"
               )}
             />
           ))}
         </div>
         <div className="absolute top-2 left-2 flex gap-1">
           {Array.from({ length: 4 }).map((_, index) => (
-            <Heart
+            <MessageSquare
               key={`notes-${index}`}
               className={cn(
-                "h-4 w-4 text-[#33ff33] fill-[#33ff33] heart-icon",
-                index < (stats?.noteHearts || 0) && "active pulse-glow-green"
+                "h-4 w-4 text-[#33ff33] heart-icon",
+                index < cappedNoteHearts && "active pulse-glow-green"
               )}
             />
           ))}

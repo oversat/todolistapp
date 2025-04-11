@@ -22,12 +22,21 @@ export function useChibiStats(chibiId: string) {
 
   // Simplified heart calculation - just check for non-empty content
   const calculateHearts = (tasks: Task[]) => {
-    const tasksWithDeadlines = tasks.filter(task => task.due_date && !task.completed).length;
-    const tasksWithNotes = tasks.filter(task => task.notes && task.notes.trim() !== '' && !task.completed).length;
+    const tasksWithDeadlines = tasks.filter(task => 
+      task.due_date && 
+      !task.completed && 
+      new Date(task.due_date) > new Date()
+    ).length;
+    
+    const tasksWithNotes = tasks.filter(task => 
+      task.notes && 
+      task.notes.trim() !== '' && 
+      !task.completed
+    ).length;
     
     return {
-      deadlineHearts: tasksWithDeadlines,
-      noteHearts: tasksWithNotes
+      deadlineHearts: Math.min(tasksWithDeadlines, 4),
+      noteHearts: Math.min(tasksWithNotes, 4)
     };
   };
 

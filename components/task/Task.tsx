@@ -28,8 +28,40 @@ const pulseGlowStyle = `
       background: rgba(41, 204, 41, 0.15);
     }
   }
-  .pulse-glow {
+
+  @keyframes pulseGlowPink {
+    0% { 
+      box-shadow: 0 0 2px #ff69b4,
+                 0 0 4px #ff69b4,
+                 0 0 6px rgba(255, 105, 180, 0.7),
+                 0 0 8px rgba(255, 105, 180, 0.6);
+      background: rgba(255, 105, 180, 0.15);
+    }
+    50% { 
+      box-shadow: 0 0 4px #ff69b4,
+                 0 0 8px #ff69b4,
+                 0 0 12px rgba(255, 105, 180, 0.7),
+                 0 0 24px rgba(255, 105, 180, 0.6);
+      background: rgba(255, 105, 180, 0.3);
+    }
+    100% { 
+      box-shadow: 0 0 2px #ff69b4,
+                 0 0 4px #ff69b4,
+                 0 0 6px rgba(255, 105, 180, 0.7),
+                 0 0 8px rgba(255, 105, 180, 0.6);
+      background: rgba(255, 105, 180, 0.15);
+    }
+  }
+
+  .pulse-glow-green {
     animation: pulseGlow 3s infinite;
+    border-radius: 60%;
+    position: relative;
+    z-index: 1;
+  }
+
+  .pulse-glow-pink {
+    animation: pulseGlowPink 3s infinite;
     border-radius: 60%;
     position: relative;
     z-index: 1;
@@ -185,7 +217,7 @@ export function Task({
                 onClick={() => setShowDatePicker(!showDatePicker)}
                 className={cn(
                   "text-white hover:bg-[#1084d0] p-0.5 relative",
-                  localDueDate && "pulse-glow"
+                  localDueDate && "pulse-glow-pink"
                 )}
                 title={localDueDate ? `Due: ${formatDueDate(localDueDate)}` : "Set Due Date"}
               >
@@ -195,7 +227,7 @@ export function Task({
                 onClick={() => setShowNotes(!showNotes)}
                 className={cn(
                   "text-white hover:bg-[#1084d0] p-0.5 relative",
-                  localNotes && localNotes.trim() !== "" && "pulse-glow"
+                  localNotes && localNotes.trim() !== "" && "pulse-glow-green"
                 )}
                 title={localNotes && localNotes.trim() !== "" ? "View Notes" : "Add Notes"}
               >
