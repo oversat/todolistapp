@@ -114,7 +114,6 @@ export function Chibi({
   const { stats } = useChibiStats(id || '');
 
   // Cap the values at 4
-  const cappedDeadlineHearts = Math.min(stats?.deadlineHearts || 0, 4);
   const cappedNoteHearts = Math.min(stats?.noteHearts || 0, 4);
 
   const handleDeleteClick = (e: React.MouseEvent) => {
@@ -153,7 +152,7 @@ export function Chibi({
               key={`deadline-${index}`}
               className={cn(
                 "h-4 w-4 text-[#ff69b4] heart-icon",
-                index < cappedDeadlineHearts && "active pulse-glow-pink"
+                index < cappedNoteHearts && "active pulse-glow-pink"
               )}
             />
           ))}
