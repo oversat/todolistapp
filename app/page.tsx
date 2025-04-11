@@ -1,5 +1,5 @@
 'use client';
-import { useState, useRef, Key, ChangeEvent, useEffect } from 'react';
+import { useState, useRef, Key, ChangeEvent, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { Window } from '@/components/ui/Window';
 import { Task } from '@/components/task/Task';
@@ -27,6 +27,7 @@ import { DeleteChibiDialog } from '@/components/chibi/DeleteChibiDialog';
 import { useChibiStats } from '@/hooks/useChibiStats';
 import { ChibiHealthChart } from '@/components/data/visualization/ChibiHealthChart';
 import { AwakeZoneHealth } from '@/components/data/visualization/AwakeZoneHealth';
+import { TaskInput } from '@/components/task/TaskInput';
 
 // Define z-index layers at the top of the file after imports
 const zLayers = {
@@ -38,6 +39,16 @@ const zLayers = {
   dialog: 100,         // Dialogs and modals
   emojiEffects: 1000   // Top layer for emoji animations
 } as const;
+
+// Add these interfaces at the top of the file after imports
+interface Task {
+  id: string;
+  text: string;
+  completed: boolean;
+  notes?: string;
+  due_date?: string;
+  created_at: string;
+}
 
 export default function Home() {
   const router = useRouter();
@@ -110,12 +121,10 @@ export default function Home() {
   const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
   const [deletingTaskId, setDeletingTaskId] = useState<string | null>(null);
   const [chibiToDelete, setChibiToDelete] = useState<ChibiData | null>(null);
-  const [newTaskText, setNewTaskText] = useState('');
-  type ChibiType = keyof typeof CHIBI_IMAGES;
-  const [selectedChibiType, setSelectedChibiType] = useState<ChibiType>('fox');
   const [newChibiName, setNewChibiName] = useState('');
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [completingTaskId, setCompletingTaskId] = useState<string | null>(null);
+  const [selectedChibiType, setSelectedChibiType] = useState<keyof typeof CHIBI_IMAGES>('fox');
 
   const chibiImageRef = useRef<HTMLDivElement>(null);
   const chatTabRef = useRef<ChatTabHandle>(null);
@@ -156,11 +165,8 @@ export default function Home() {
     }
   };
 
-  const handleAddTask = () => {
-    if (newTaskText.trim()) {
-      addTask(newTaskText.trim());
-      setNewTaskText('');
-    }
+  const handleAddTask = (text: string) => {
+    addTask(text);
   };
 
   function toggleSoundEffects(event: ChangeEvent<HTMLInputElement>): void {
@@ -332,27 +338,65 @@ export default function Home() {
                   >
                     {/* Task Count */}
                     <div className="flex justify-end font-vt323 text-[#33ff33]">
-                      <div>{currentChibi.tasks.filter((t: { completed: boolean }) => !t.completed).length} tasks</div>
+                      <div>{currentChibi.tasks.filter((t: Task) => !t.completed).length} tasks</div>
                     </div>
 
                     {/* Hunger Bar */}
                     <div className="absolute top-6 left-6 font-vt323 text-[#33ff33] text-sm">
-                      <div>Hunger</div>
+                      <div className="flex items-center gap-2">
+                        <span>Hunger</span>
+                        <span className="text-[#ff69b4]">
+                          {(() => {
+                            const taskCount = currentChibi.tasks.filter((t: Task) => !t.completed).length;
+                            if (taskCount === 0) return "100%";
+                            if (taskCount === 1) return "75%";
+                            if (taskCount === 2) return "50%";
+                            if (taskCount === 3) return "25%";
+                            return "0%";
+                          })()}
+                        </span>
+                      </div>
                       <div className="w-24 h-2 bg-[#1a1a1a] rounded-sm overflow-hidden">
                         <div 
-                          className="h-full bg-[#ff69b4]" 
-                          style={{ width: `${currentChibi.energy}%` }}
+                          className="h-full bg-[#ff69b4] transition-all duration-300" 
+                          style={{ width: (() => {
+                            const taskCount = currentChibi.tasks.filter((t: Task) => !t.completed).length;
+                            if (taskCount === 0) return "100%";
+                            if (taskCount === 1) return "75%";
+                            if (taskCount === 2) return "50%";
+                            if (taskCount === 3) return "25%";
+                            return "0%";
+                          })() }}
                         />
                       </div>
                     </div>
 
                     {/* Energy Bar */}
                     <div className="absolute bottom-6 left-6 font-vt323 text-[#33ff33] text-sm">
-                      <div>Energy</div>
+                      <div className="flex items-center gap-2">
+                        <span>Energy</span>
+                        <span className="text-[#33ff33]">
+                          {(() => {
+                            const taskCount = currentChibi.tasks.filter((t: Task) => !t.completed).length;
+                            if (taskCount === 0) return "0%";
+                            if (taskCount === 1) return "25%";
+                            if (taskCount === 2) return "50%";
+                            if (taskCount === 3) return "75%";
+                            return "100%";
+                          })()}
+                        </span>
+                      </div>
                       <div className="w-24 h-2 bg-[#1a1a1a] rounded-sm overflow-hidden">
                         <div 
-                          className="h-full bg-[#33ff33]" 
-                          style={{ width: `${currentChibi.energy}%` }}
+                          className="h-full bg-[#33ff33] transition-all duration-300" 
+                          style={{ width: (() => {
+                            const taskCount = currentChibi.tasks.filter((t: Task) => !t.completed).length;
+                            if (taskCount === 0) return "0%";
+                            if (taskCount === 1) return "25%";
+                            if (taskCount === 2) return "50%";
+                            if (taskCount === 3) return "75%";
+                            return "100%";
+                          })() }}
                         />
                       </div>
                     </div>
@@ -373,23 +417,7 @@ export default function Home() {
                   >
                     <div className="flex gap-2 w-full">
                       {taskViewTab === 'tasks' ? (
-                        <>
-                          <input
-                            type="text"
-                            value={newTaskText}
-                            onChange={(e) => setNewTaskText(e.target.value)}
-                            onKeyPress={(e) => e.key === 'Enter' && handleAddTask()}
-                            className="min-w-0 flex-1 px-3 py-2 bg-white border-2 border-[#000080] text-gray-800 font-vt323 text-lg rounded focus:outline-none"
-                            placeholder="Add a new task..."
-                          />
-                          <button
-                            onClick={handleAddTask}
-                            disabled={!newTaskText.trim()}
-                            className="whitespace-nowrap px-4 py-2 bg-[#c3c3c3] text-gray-800 font-vt323 border-2 border-t-white border-l-white border-r-gray-600 border-b-gray-600 hover:bg-[#d4d4d4] transition-colors disabled:opacity-50"
-                          >
-                            Add Task
-                          </button>
-                        </>
+                        <TaskInput onAddTask={handleAddTask} />
                       ) : (
                         <form onSubmit={(e) => {
                           e.preventDefault();
@@ -428,12 +456,17 @@ export default function Home() {
                       <div className="h-[calc(100%-60px)] overflow-y-auto p-4" style={{ zIndex: zLayers.background }}>
                         <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-4">
                           {currentChibi.tasks
-                            .filter((task: { completed: boolean }) => !task.completed)
-                            .map((task) => (
+                            .filter((task: Task) => !task.completed)
+                            .map((task: Task) => (
                               <Task
                                 key={task.id}
-                                {...task}
+                                id={task.id}
+                                text={task.text}
+                                completed={task.completed}
                                 chibiId={currentChibi.id}
+                                notes={task.notes}
+                                due_date={task.due_date}
+                                created_at={task.created_at}
                                 onComplete={() => handleTaskComplete(task.id)}
                                 onEdit={() => {
                                   setEditingTaskId(task.id);

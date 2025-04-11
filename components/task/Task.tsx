@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Check, Edit2, Trash2, MessageSquare, Clock } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useChibiStats } from '@/hooks/useChibiStats';
+import { useChibiStats, ChibiStats } from '@/hooks/useChibiStats';
 
 // Add keyframes for the pulsing glow
 const pulseGlowStyle = `
@@ -71,42 +71,42 @@ const pulseGlowStyle = `
 interface TaskProps {
   id: string;
   text: string;
-  completed?: boolean;
-  disabled?: boolean;
+  completed: boolean;
+  chibiId: string;
   notes?: string;
   due_date?: string;
   created_at: string;
-  chibiId?: string;
-  onComplete?: () => void;
-  onEdit?: () => void;
-  onDelete?: () => void;
-  onNotesChange?: (notes: string) => void;
-  onDueDateChange?: (date: string) => void;
+  onComplete: () => void;
+  onEdit: () => void;
+  onDelete: () => void;
+  onNotesChange: (notes: string) => void;
+  onDueDateChange: (date: string) => void;
+  disabled?: boolean;
 }
 
 export function Task({
   id,
   text,
   completed,
-  disabled,
-  notes = '',
+  chibiId,
+  notes,
   due_date,
   created_at,
-  chibiId,
   onComplete,
   onEdit,
   onDelete,
   onNotesChange,
   onDueDateChange,
+  disabled = false
 }: TaskProps) {
-  const [localNotes, setLocalNotes] = useState(notes);
+  const [localNotes, setLocalNotes] = useState<string>(notes || '');
   const [hasUnsavedNotes, setHasUnsavedNotes] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [showNotes, setShowNotes] = useState(false);
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [localDueDate, setLocalDueDate] = useState(due_date || '');
   const [isSavingDate, setIsSavingDate] = useState(false);
-  const { stats, updateTask, updateChibiStats } = useChibiStats(chibiId || '');
+  const { stats, updateTask } = useChibiStats(chibiId || '');
   const { stats: chibiStats } = useChibiStats(chibiId || '');
   const [localHearts, setLocalHearts] = useState({
     deadlineHearts: stats?.deadlineHearts || 0,
@@ -120,7 +120,7 @@ export function Task({
 
   // Update local state when props change
   useEffect(() => {
-    setLocalNotes(notes);
+    setLocalNotes(notes || '');
     setLocalDueDate(due_date || '');
   }, [notes, due_date]);
 
@@ -146,7 +146,7 @@ export function Task({
     try {
       // Update local state immediately
       if (chibiId) {
-        updateTask(id, { notes: localNotes });
+        updateTask(id, { notes: localNotes || undefined });
       }
       // Then save to server
       await onNotesChange(localNotes);
@@ -154,9 +154,9 @@ export function Task({
     } catch (error) {
       console.error('Error saving notes:', error);
       // Revert on error
-      setLocalNotes(notes);
+      setLocalNotes(notes || '');
       if (chibiId) {
-        updateTask(id, { notes });
+        updateTask(id, { notes: notes || undefined });
       }
     } finally {
       setIsSaving(false);
@@ -174,24 +174,25 @@ export function Task({
     try {
       // Update local state immediately
       if (chibiId) {
-        updateTask(id, { due_date: localDueDate });
+        updateTask(id, { due_date: localDueDate || undefined });
       }
       // Then save to server
-      await onDueDateChange(localDueDate);
+      await onDueDateChange(localDueDate || '');
       setShowDatePicker(false);
     } catch (error) {
       console.error('Error saving due date:', error);
       // Revert on error
       setLocalDueDate(due_date || '');
       if (chibiId) {
-        updateTask(id, { due_date });
+        updateTask(id, { due_date: due_date || undefined });
       }
     } finally {
       setIsSavingDate(false);
     }
   };
 
-  const formatDueDate = (dateString: string) => {
+  const formatDueDate = (dateString: string | undefined) => {
+    if (!dateString) return '';
     const date = new Date(dateString);
     return date.toLocaleDateString(undefined, { 
       month: 'short', 
@@ -202,14 +203,13 @@ export function Task({
 
   const handleComplete = async () => {
     if (onComplete) {
-      // Update chibi stats before completing the task
-      if (chibiId && stats) {
-        await updateChibiStats({
-          energy: Math.max(0, (stats.energy || 0) - 10),  // Decrease energy
-          hunger: Math.min(100, (stats.hunger || 0) + 10) // Increase hunger
-        });
+      try {
+        // Just mark the task as completed
+        await updateTask(id, { completed: true });
+        onComplete();
+      } catch (error) {
+        console.error('Failed to complete task:', error);
       }
-      onComplete();
     }
   };
 

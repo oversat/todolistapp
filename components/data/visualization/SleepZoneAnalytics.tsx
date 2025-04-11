@@ -66,11 +66,20 @@ export function SleepZoneAnalytics({
                   }}
                 >
                   <Task
-                    {...task}
+                    key={task.id}
+                    id={task.id}
+                    text={task.text}
+                    completed={task.completed}
+                    chibiId={chibiId}
+                    notes={task.notes}
+                    due_date={task.due_date}
+                    created_at={task.created_at}
                     disabled
                     onDelete={() => onDeleteTask?.(task.id)}
                     onNotesChange={(notes) => onNotesChange?.(task.id, notes)}
                     onDueDateChange={(date) => onDueDateChange?.(task.id, date)}
+                    onComplete={() => {}}
+                    onEdit={() => {}}
                   />
                 </div>
               ))}
