@@ -89,9 +89,13 @@ const pulseGlowStyle = `
 interface AwakeZoneHealthProps {
   chibiId: string;
   onTaskStatusChange?: (hasNotes: boolean, hasDueDate: boolean) => void;
+  immediateUpdate?: {
+    deadlineHearts?: number;
+    noteHearts?: number;
+  };
 }
 
-export function AwakeZoneHealth({ chibiId, onTaskStatusChange }: AwakeZoneHealthProps) {
+export function AwakeZoneHealth({ chibiId, onTaskStatusChange, immediateUpdate }: AwakeZoneHealthProps) {
   const { stats, loading } = useChibiStats(chibiId);
   const [localHearts, setLocalHearts] = useState({
     deadlineHearts: 0,
@@ -102,15 +106,20 @@ export function AwakeZoneHealth({ chibiId, onTaskStatusChange }: AwakeZoneHealth
     notes?: boolean;
   }>({});
 
-  // Update local state when stats change
+  // Update local state when stats change or immediateUpdate is provided
   useEffect(() => {
-    if (stats) {
+    if (immediateUpdate) {
+      setLocalHearts({
+        deadlineHearts: immediateUpdate.deadlineHearts ?? localHearts.deadlineHearts,
+        noteHearts: immediateUpdate.noteHearts ?? localHearts.noteHearts
+      });
+    } else if (stats) {
       setLocalHearts({
         deadlineHearts: Math.min(stats.deadlineHearts, 4),
         noteHearts: Math.min(stats.noteHearts, 4)
       });
     }
-  }, [stats]);
+  }, [stats, immediateUpdate]);
 
   // Handle task status changes
   useEffect(() => {

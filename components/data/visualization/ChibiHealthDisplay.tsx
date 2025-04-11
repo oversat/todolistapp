@@ -15,8 +15,8 @@ export function ChibiHealthDisplay({ chibiId }: ChibiHealthDisplayProps) {
     );
   }
 
-  // Calculate happiness hearts (max 4)
-  const happinessHearts = Math.round((stats?.happiness || 0) / 25);
+  // Calculate health hearts (max 4)
+  const healthHearts = Math.round((stats?.health || 0) / 25);
   // Calculate discipline bar (percentage)
   const disciplineLevel = analytics.completionRate;
 
@@ -35,12 +35,12 @@ export function ChibiHealthDisplay({ chibiId }: ChibiHealthDisplayProps) {
           </div>
         </div>
 
-        {/* Happiness Hearts */}
+        {/* Health Hearts */}
         <div className="flex items-center gap-1">
-          <span className="text-sm min-w-[80px]">Happy</span>
+          <span className="text-sm min-w-[80px]">Health</span>
           <div className="flex gap-1">
             {[...Array(4)].map((_, i) => (
-              <span key={i} className={i < happinessHearts ? 'text-[#33ff33]' : 'text-[#1a1a1a]'}>
+              <span key={i} className={i < healthHearts ? 'text-[#33ff33]' : 'text-[#1a1a1a]'}>
                 ♥
               </span>
             ))}
