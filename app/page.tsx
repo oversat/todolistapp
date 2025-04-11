@@ -344,7 +344,7 @@ export default function Home() {
                     {/* Hunger Bar */}
                     <div className="absolute top-6 left-6 font-vt323 text-[#33ff33] text-sm">
                       <div className="flex items-center gap-2">
-                        <span>Hunger</span>
+                        <span>Appetite</span>
                         <span className="text-[#ff69b4]">
                           {(() => {
                             const taskCount = currentChibi.tasks.filter((t: Task) => !t.completed).length;
