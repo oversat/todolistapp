@@ -94,7 +94,7 @@ export async function signInAsGuest(): Promise<{ data: any; error: AuthError | n
           .insert([{
             user_id: signInData.user.id,
             name: 'Guest Chibi',
-            type: 'pink',
+            type: 'fox',
             happiness: 70,
             energy: 80,
           }]);
