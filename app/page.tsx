@@ -21,6 +21,8 @@ import { useToast } from '@/hooks/use-toast';
 import { AnalyticsDashboard } from '@/components/data/visualization/AnalyticsDashboard';
 import { SleepZoneAnalytics } from '@/components/data/visualization/SleepZoneAnalytics';
 import { ChibiHealthDisplay } from '@/components/data/visualization/ChibiHealthDisplay';
+import ChatTab, { ChatTabHandle } from '@/components/chat/ChatTab';
+import { cn } from '@/lib/utils';
 
 // Define z-index layers at the top of the file after imports
 const zLayers = {
@@ -36,7 +38,8 @@ const zLayers = {
 export default function Home() {
   const router = useRouter();
   const { toast } = useToast();
-  const [activeTab, setActiveTab] = useState('chibis');
+  const [mainTab, setMainTab] = useState<'chibis' | 'awake' | 'sleep' | 'settings'>('chibis');
+  const [taskViewTab, setTaskViewTab] = useState<'tasks' | 'chat'>('tasks');
   
   // Check authentication status
   useEffect(() => {
@@ -104,15 +107,21 @@ export default function Home() {
   const [selectedChibiType, setSelectedChibiType] = useState<keyof typeof CHIBI_IMAGES>('pink');
   const [newChibiName, setNewChibiName] = useState('');
   const [showCreateForm, setShowCreateForm] = useState(false);
+  const [completingTaskId, setCompletingTaskId] = useState<string | null>(null);
 
   const chibiImageRef = useRef<HTMLDivElement>(null);
+  const chatTabRef = useRef<ChatTabHandle>(null);
 
   const handleTaskComplete = (taskId: string) => {
-    completeTask(taskId);
+    setCompletingTaskId(taskId);
     setShowFeedDialog(true);
   };
 
   const handleFeedChibi = () => {
+    if (completingTaskId) {
+      completeTask(completingTaskId);
+      setCompletingTaskId(null);
+    }
     feedChibi();
     if (chibiImageRef.current) {
       showEmojis(chibiImageRef.current);
@@ -160,7 +169,7 @@ export default function Home() {
 
   const createChibiForm = (
     <div className="text-center py-8">
-      <p className="font-vt323 text-xl mb-4">{chibis.length === 0 ? 'No Chibis yet!' : 'Create New Chibi'}</p>
+      <p className="font-vt323 text-xl mb-4 text-black">{chibis.length === 0 ? 'No Chibis yet!' : 'Create New Chibi'}</p>
       <div className="space-y-4">
         <input
           type="text"
@@ -174,7 +183,7 @@ export default function Home() {
             <button
               key={type}
               onClick={() => setSelectedChibiType(type)}
-              className={`w-20 h-20 rounded-lg border-3 overflow-hidden ${
+              className={`w-60 h-60 rounded-lg border-3 overflow-hidden ${
                 selectedChibiType === type ? 'border-pink-500 shadow-glow' : 'border-gray-400'
               }`}
             >
@@ -186,14 +195,16 @@ export default function Home() {
           <button
             onClick={handleCreateChibi}
             disabled={!newChibiName.trim()}
-            className="bg-gray-200 border-2 border-white border-r-gray-600 border-b-gray-600 px-4 py-2"
+            className={`border-2 border-white border-r-gray-600 border-b-gray-600 px-4 py-2 text-black ${
+              newChibiName.trim() ? 'bg-[#ff69b4] shadow-[0_0_10px_#33ff33]' : 'bg-gray-200'
+            }`}
           >
             Create New Chibi
           </button>
           {chibis.length > 0 && (
             <button
               onClick={() => setShowCreateForm(false)}
-              className="bg-gray-300 border-2 border-white border-r-gray-600 border-b-gray-600 px-4 py-2"
+              className="bg-gray-300 border-2 border-white border-r-gray-600 border-b-gray-600 px-4 py-2 text-black"
             >
               Cancel
             </button>
@@ -205,7 +216,7 @@ export default function Home() {
 
   return (
     <MainLayout>
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="max-w-4xl mx-auto">
+      <Tabs value={mainTab} onValueChange={setMainTab} className="max-w-4xl mx-auto">
         <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="chibis">
             <Ghost className="mr-2" />
@@ -256,7 +267,7 @@ export default function Home() {
                         energy={chibi.energy}
                         onSelect={() => {
                           setCurrentChibiIndex(index);
-                          setActiveTab('awake');
+                          setMainTab('awake');
                         }}
                       />
                     </div>
@@ -337,50 +348,92 @@ export default function Home() {
                     style={{ zIndex: zLayers.taskBar }}
                   >
                     <div className="flex gap-2 w-full">
-                      <input
-                        type="text"
-                        value={newTaskText}
-                        onChange={(e) => setNewTaskText(e.target.value)}
-                        onKeyPress={(e) => e.key === 'Enter' && handleAddTask()}
-                        className="flex-grow px-3 py-2 bg-white border-2 border-[#000080] text-gray-800 font-vt323 text-lg rounded focus:outline-none"
-                        placeholder="Add a new task..."
-                      />
+                      {taskViewTab === 'tasks' ? (
+                        <>
+                          <input
+                            type="text"
+                            value={newTaskText}
+                            onChange={(e) => setNewTaskText(e.target.value)}
+                            onKeyPress={(e) => e.key === 'Enter' && handleAddTask()}
+                            className="flex-grow px-3 py-2 bg-white border-2 border-[#000080] text-gray-800 font-vt323 text-lg rounded focus:outline-none"
+                            placeholder="Add a new task..."
+                          />
+                          <button
+                            onClick={handleAddTask}
+                            disabled={!newTaskText.trim()}
+                            className="px-4 py-2 bg-[#c3c3c3] text-gray-800 font-vt323 border-2 border-t-white border-l-white border-r-gray-600 border-b-gray-600 hover:bg-[#d4d4d4] transition-colors disabled:opacity-50"
+                          >
+                            Add
+                          </button>
+                        </>
+                      ) : (
+                        <form onSubmit={(e) => {
+                          e.preventDefault();
+                          if (currentChibi && chatTabRef.current) {
+                            chatTabRef.current.handleSubmit(e);
+                          }
+                        }} className="flex-grow flex gap-2">
+                          <input
+                            type="text"
+                            className="flex-grow px-3 py-2 bg-white border-2 border-[#000080] text-gray-800 font-vt323 text-lg rounded focus:outline-none"
+                            placeholder="Type your message..."
+                          />
+                          <button
+                            type="submit"
+                            className="px-4 py-2 bg-[#c3c3c3] text-gray-800 font-vt323 border-2 border-t-white border-l-white border-r-gray-600 border-b-gray-600 hover:bg-[#d4d4d4] transition-colors"
+                          >
+                            Send
+                          </button>
+                        </form>
+                      )}
                       <button
-                        onClick={handleAddTask}
-                        disabled={!newTaskText.trim()}
-                        className="px-4 py-2 bg-[#c3c3c3] text-gray-800 font-vt323 border-2 border-t-white border-l-white border-r-gray-600 border-b-gray-600 hover:bg-[#d4d4d4] transition-colors disabled:opacity-50"
+                        onClick={() => setTaskViewTab(taskViewTab === 'tasks' ? 'chat' : 'tasks')}
+                        className={cn(
+                          "px-4 py-2 bg-[#c3c3c3] text-gray-800 font-vt323 border-2 border-t-white border-l-white border-r-gray-600 border-b-gray-600 hover:bg-[#d4d4d4] transition-colors",
+                          taskViewTab === 'tasks' ? 'glow-green' : 'glow-pink'
+                        )}
                       >
-                        Add
+                        {taskViewTab === 'tasks' ? 'Tasks' : 'Chat'}
                       </button>
                     </div>
                   </div>
 
-                  {/* Scrollable Task List */}
-                  <div 
-                    className="h-[calc(100%-60px)] overflow-y-auto p-4"
-                    style={{ zIndex: zLayers.background }}
-                  >
-                    <div className="grid grid-cols-2 gap-4">
-                      {currentChibi.tasks
-                        .filter((task: { completed: boolean }) => !task.completed)
-                        .map((task) => (
-                          <Task
-                            key={task.id}
-                            {...task}
-                            onComplete={() => handleTaskComplete(task.id)}
-                            onEdit={() => {
-                              setEditingTaskId(task.id);
-                              setShowEditDialog(true);
-                            }}
-                            onDelete={() => {
-                              setDeletingTaskId(task.id);
-                              setShowDeleteDialog(true);
-                            }}
-                            onNotesChange={(notes) => updateTaskNotes(task.id, notes)}
-                            onDueDateChange={(date) => updateTaskDueDate(task.id, date)}
-                          />
-                        ))}
-                    </div>
+                  {/* Content Area */}
+                  <div className="flex-1 overflow-hidden">
+                    {taskViewTab === 'tasks' ? (
+                      <div className="h-[calc(100%-60px)] overflow-y-auto p-4" style={{ zIndex: zLayers.background }}>
+                        <div className="grid grid-cols-2 gap-4">
+                          {currentChibi.tasks
+                            .filter((task: { completed: boolean }) => !task.completed)
+                            .map((task) => (
+                              <Task
+                                key={task.id}
+                                {...task}
+                                onComplete={() => handleTaskComplete(task.id)}
+                                onEdit={() => {
+                                  setEditingTaskId(task.id);
+                                  setShowEditDialog(true);
+                                }}
+                                onDelete={() => {
+                                  setDeletingTaskId(task.id);
+                                  setShowDeleteDialog(true);
+                                }}
+                                onNotesChange={(notes) => updateTaskNotes(task.id, notes)}
+                                onDueDateChange={(date) => updateTaskDueDate(task.id, date)}
+                              />
+                            ))}
+                        </div>
+                      </div>
+                    ) : (
+                      <ChatTab
+                        ref={chatTabRef}
+                        data-chat-tab
+                        chibiId={currentChibi.id}
+                        chibiName={currentChibi.name}
+                        chibiType={currentChibi.type}
+                        tasks={currentChibi.tasks}
+                      />
+                    )}
                   </div>
                 </div>
               </div>
@@ -399,29 +452,13 @@ export default function Home() {
             <Window title="Task Management" className="mb-6" zIndex={zLayers.windowFrame}>
               <div className="space-y-6">
                 {/* Analytics Charts */}
-                <SleepZoneAnalytics chibiId={currentChibi.id} />
-
-                {/* Completed Tasks */}
-                <div className="space-y-2">
-                  <h3 className="font-vt323 text-lg text-[#33ff33]">Completed Tasks</h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    {currentChibi.tasks
-                      .filter((task: { completed: any; }) => task.completed)
-                      .map(task => (
-                        <Task
-                          key={task.id}
-                          {...task}
-                          disabled
-                          onDelete={() => {
-                            setDeletingTaskId(task.id);
-                            setShowDeleteDialog(true);
-                          }}
-                          onNotesChange={(notes) => updateTaskNotes(task.id, notes)}
-                          onDueDateChange={(date) => updateTaskDueDate(task.id, date)}
-                        />
-                      ))}
-                  </div>
-                </div>
+                <SleepZoneAnalytics 
+                  chibiId={currentChibi.id}
+                  completedTasks={currentChibi.tasks.filter((task: { completed: boolean }) => task.completed)}
+                  onDeleteTask={deleteTask}
+                  onNotesChange={updateTaskNotes}
+                  onDueDateChange={updateTaskDueDate}
+                />
 
                 <button
                   onClick={cleanCompletedTasks}
@@ -506,7 +543,10 @@ export default function Home() {
       {/* Dialogs */}
       <FeedDialog
         isOpen={showFeedDialog}
-        onClose={() => setShowFeedDialog(false)}
+        onClose={() => {
+          setShowFeedDialog(false);
+          setCompletingTaskId(null);
+        }}
         onFeed={handleFeedChibi}
       />
 

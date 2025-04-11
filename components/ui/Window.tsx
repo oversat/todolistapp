@@ -21,8 +21,8 @@ export function Window({ children, title, className, zIndex }: WindowProps) {
       <div className="bg-gradient-to-r from-neon-blue to-neon-purple px-2 py-1 relative z-[2]">
         <span className="font-vt323 text-white">{title}</span>
       </div>
-      {/* Content area - below title bar */}
-      <div className="p-4 relative z-[1]">
+      {/* Content area - below title bar but above other elements */}
+      <div className="p-4 relative z-[1]" style={{ zIndex: zIndex ? zIndex - 1 : undefined }}>
         {children}
       </div>
     </div>

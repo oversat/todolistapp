@@ -387,6 +387,130 @@ This data visualization system creates an engaging feedback loop where:
 4. Historical data helps users track their progress
 5. The calendar keeps everything organized and on schedule
 
+## Chatbot Assistant 🤖
+
+The application features an intelligent chatbot assistant that helps users manage their tasks and provides personalized support.
+
+### Features ✨
+
+1. **Task-Aware Responses**
+   - Real-time access to all tasks
+   - Contextual advice based on task status
+   - Due date awareness
+   - Notes integration
+   - Completion status tracking
+
+2. **Natural Language Interface**
+   - Conversational interaction
+   - Friendly and supportive tone
+   - Task-specific suggestions
+   - Progress tracking assistance
+   - Motivation and encouragement
+
+3. **Task Management Support**
+   - Task creation guidance
+   - Priority suggestions
+   - Due date reminders
+   - Progress tracking
+   - Task organization tips
+
+### Technical Implementation 🛠️
+
+1. **API Integration**
+   ```typescript
+   // Example request structure
+   {
+     chibiId: string;
+     chibiName: string;
+     message: string;
+     tasks: Array<{
+       id: string;
+       text: string;
+       completed: boolean;
+       due_date?: string;
+       notes?: string;
+     }>;
+   }
+   ```
+
+2. **Task Context Formatting**
+   ```typescript
+   const taskContext = tasks.map(task => {
+     const status = task.completed ? '✅ Completed' : '⏳ Pending';
+     const dueDate = task.due_date ? ` (Due: ${new Date(task.due_date).toLocaleDateString()})` : '';
+     const notes = task.notes ? `\n   Notes: ${task.notes}` : '';
+     return `- ${task.text}${dueDate}\n   ${status}${notes}`;
+   }).join('\n\n');
+   ```
+
+3. **System Prompt**
+   ```typescript
+   const systemMessage = `You are ${chibiName}'s AI assistant. You help manage tasks and provide friendly, supportive advice. Here are the current tasks:\n\n${taskContext}\n\nWhen responding, always consider the current tasks and provide relevant advice or suggestions based on them. If there are no tasks, acknowledge this and offer to help create some.`;
+   ```
+
+### User Interface 🖥️
+
+1. **Chat Window**
+   ```
+   +----------------------------------------+
+   | Chat with ${chibiName}                 |
+   |----------------------------------------|
+   | [Message history...]                   |
+   |                                        |
+   | [Input field] [Send]                   |
+   +----------------------------------------+
+   ```
+
+2. **Message Formatting**
+   - User messages aligned right
+   - Assistant messages aligned left
+   - Loading indicators for responses
+   - Error handling with user-friendly messages
+
+### Error Handling 🚨
+
+1. **API Errors**
+   - Graceful error messages
+   - User-friendly notifications
+   - Automatic retry mechanism
+   - Fallback responses
+
+2. **Data Validation**
+   - Task data verification
+   - Message sanitization
+   - Input validation
+   - Response formatting checks
+
+### Security 🔐
+
+1. **Data Protection**
+   - Secure API communication
+   - User authentication
+   - Data encryption
+   - Privacy-focused design
+
+2. **Access Control**
+   - User-specific chat sessions
+   - Task data isolation
+   - Secure message handling
+   - Protected API endpoints
+
+### Future Enhancements 🚀
+
+1. **Planned Features**
+   - Task creation through chat
+   - Due date modification
+   - Priority setting
+   - Task categorization
+   - Progress analytics
+
+2. **AI Improvements**
+   - Enhanced context awareness
+   - Better task suggestions
+   - Personalized advice
+   - Learning from user patterns
+   - Proactive reminders
+
 ## Required Implementation Files for Data Visualization 📊
 
 ### New Components
@@ -540,3 +664,114 @@ export interface ChartData {
 └── calendar/
     └── TaskCalendar.test.tsx
 ```
+
+## Jeremiah - Create Tasks to Personalize Chibi Feature 🎨
+
+A unique gamification system that rewards task completion with chibi customization options. Each completed task unlocks new personalization features for your chibi companion.
+
+### Unlock System 🔓
+
+1. **Base Color** (1 Task)
+   - Unlocked after completing first task
+   - Choose from:
+     - Neon Pink (#ff64d6)
+     - Cyber Blue (#00c2ff)
+     - Digital Purple (#b967ff)
+     - Matrix Green (#33ff33)
+     - Virtual Yellow (#ffff00)
+
+2. **Personality** (2 Tasks)
+   - Unlocked after completing two tasks
+   - Affects chibi's expressions and animations
+   - Options:
+     - Happy (default smile)
+     - Energetic (star eyes)
+     - Sleepy (droopy eyes)
+     - Shy (blushing)
+     - Confident (sunglasses)
+
+3. **Background** (3 Tasks)
+   - Unlocked after completing three tasks
+   - Choose environment:
+     - Retro Computer Lab
+     - Pixel City
+     - Digital Space
+     - Cyber Garden
+     - Virtual Classroom
+
+4. **Accessories** (4 Tasks)
+   - Unlocked after completing four tasks
+   - Multiple selections allowed
+   - Categories:
+     - Hats/Hair Accessories
+     - Face Items
+     - Held Items
+     - Special Effects
+
+### Technical Implementation 🛠️
+
+1. **Database Schema Updates**:
+   ```sql
+   ALTER TABLE chibis
+   ADD COLUMN customization jsonb DEFAULT json_build_object(
+     'base_color', 'pink',
+     'personality', 'happy',
+     'background', 'retro',
+     'accessories', ARRAY[]::text[],
+     'unlocked_features', ARRAY[]::text[]
+   );
+   ```
+
+2. **Window Integration**:
+   - Customization icons appear in window title bar
+   - Icons show locked/unlocked state
+   - Hover tooltips show unlock requirements
+   - Celebration animations on unlocks
+
+3. **Progress Tracking**:
+   - Visual progress indicators
+   - Task completion counter
+   - Unlock celebration effects
+   - Persistent customization state
+
+### User Interface 🖥️
+
+1. **Window Header**:
+   ```
+   +----------------------------------------+
+   | Title    🎨 😊 🖼️ 👒           _ □ X |
+   |----------------------------------------|
+   |               Content                   |
+   |                                        |
+   +----------------------------------------+
+   ```
+   - Icons show locked (gray) or unlocked (colored) state
+   - Hover reveals unlock requirements
+   - Click opens customization panel when unlocked
+
+2. **Customization Panel**:
+   - Windows 95-style interface
+   - Real-time preview
+   - Save/Cancel buttons
+   - Category tabs for organization
+
+### Gamification Elements 🎮
+
+1. **Progressive Unlocks**:
+   - Each task completion brings new customization options
+   - Visual feedback on progress
+   - Celebration animations for unlocks
+   - Achievement notifications
+
+2. **Motivation System**:
+   - Clear progress indicators
+   - Immediate rewards for task completion
+   - Visual goal tracking
+   - Persistent customization saves
+
+This feature enhances user engagement by:
+- Creating clear progression goals
+- Providing immediate visual rewards
+- Making task completion more engaging
+- Personalizing the user experience
+- Maintaining the Y2K aesthetic theme

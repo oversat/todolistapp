@@ -76,7 +76,7 @@ export function TaskForm({ chibiId, onTaskCreated }: TaskFormProps) {
   }
 
   return (
-    <Card className="p-6">
+    <Card className="p-6 relative z-[15]">
       <h2 className="text-xl font-bold mb-4">Create New Task</h2>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="space-y-2">
