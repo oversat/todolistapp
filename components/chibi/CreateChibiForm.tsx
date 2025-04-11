@@ -125,7 +125,7 @@ export function CreateChibiForm() {
                         width={32}
                         height={32}
                         className="object-contain"
-                        unoptimized
+                        priority
                       />
                     </div>
                     {selectedType.label}
@@ -144,7 +144,7 @@ export function CreateChibiForm() {
                         width={32}
                         height={32}
                         className="object-contain"
-                        unoptimized
+                        priority
                       />
                     </div>
                     {type.label}
