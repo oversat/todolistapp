@@ -29,10 +29,12 @@ interface UpdateTaskParams {
 interface ChibiStatsHookReturn {
   stats: ChibiStats | null;
   updateTask: (taskId: string, updates: UpdateTaskParams) => Promise<void>;
+  loading: boolean;
 }
 
 export function useChibiStats(chibiId: string, tasks: Task[] = []): ChibiStatsHookReturn {
   const [stats, setStats] = useState<ChibiStats | null>(null);
+  const [loading, setLoading] = useState(true);
 
   // Calculate energy based on number of tasks
   const calculateEnergy = (taskCount: number): number => {
@@ -79,6 +81,7 @@ export function useChibiStats(chibiId: string, tasks: Task[] = []): ChibiStatsHo
 
   // Update stats whenever tasks change
   useEffect(() => {
+    setLoading(true);
     const uncompletedTaskCount = tasks.filter(task => !task.completed).length;
     const { deadlineHearts, noteHearts } = calculateHearts(tasks);
     const energy = calculateEnergy(uncompletedTaskCount);
@@ -86,14 +89,15 @@ export function useChibiStats(chibiId: string, tasks: Task[] = []): ChibiStatsHo
 
     setStats({
       id: chibiId,
-      energy,
-      hunger,
       deadlineHearts,
       noteHearts,
       last_fed: new Date(),
-      health: 100
+      health: 100,
+      energy,
+      hunger
     });
-  }, [tasks, chibiId]);
+    setLoading(false);
+  }, [chibiId, tasks]);
 
-  return { stats, updateTask };
+  return { stats, updateTask, loading };
 } 
