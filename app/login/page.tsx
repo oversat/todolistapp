@@ -34,11 +34,11 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-dark-blue bg-grid-pattern">
-      <Window title="Welcome to Chibi Todo" className="max-w-md w-full">
+      <Window title="Welcome to TodoMagatchi" className="max-w-md w-full">
         <div className="p-6">
           <div className="mb-6 text-center">
-            <h1 className="text-2xl font-bold font-pressStart mb-2">CHIBI TODO</h1>
-            <p className="text-md">Your Y2K-themed task management app</p>
+            <h1 className="text-4xl font-vt323 text-[#33ff33] animate-pulse mb-2">TODOMAGATCHI</h1>
+            <p className="text-md font-vt323">Your Y2K virtual pet task manager</p>
           </div>
           <AuthForm />
         </div>

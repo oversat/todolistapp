@@ -15,8 +15,8 @@ const pressStart2P = Press_Start_2P({
 });
 
 export const metadata: Metadata = {
-  title: 'Chibi Todo - Y2K Task Manager',
-  description: 'A Y2K-themed todo list app with virtual pet companions',
+  title: 'TodoMagatchi - Virtual Pet Task Manager',
+  description: 'A Y2K-themed todo list app with virtual pets that help you stay productive',
 };
 
 export default function RootLayout({
