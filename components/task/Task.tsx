@@ -75,11 +75,13 @@ interface TaskProps {
   chibiId: string;
   notes?: string;
   due_date?: string;
+  created_at: string;
   onComplete: () => void;
   onEdit: () => void;
   onDelete: () => void;
   onNotesChange: (notes: string) => void;
   onDueDateChange: (date: string) => void;
+  disabled?: boolean;
 }
 
 export function Task({
@@ -89,11 +91,13 @@ export function Task({
   chibiId,
   notes,
   due_date,
+  created_at,
   onComplete,
   onEdit,
   onDelete,
   onNotesChange,
-  onDueDateChange
+  onDueDateChange,
+  disabled = false
 }: TaskProps) {
   const [localNotes, setLocalNotes] = useState(notes);
   const [hasUnsavedNotes, setHasUnsavedNotes] = useState(false);
@@ -102,7 +106,7 @@ export function Task({
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [localDueDate, setLocalDueDate] = useState(due_date || '');
   const [isSavingDate, setIsSavingDate] = useState(false);
-  const { stats, updateTask, setStats } = useChibiStats(chibiId || '');
+  const { stats, updateTask } = useChibiStats(chibiId || '');
   const { stats: chibiStats } = useChibiStats(chibiId || '');
   const [localHearts, setLocalHearts] = useState({
     deadlineHearts: stats?.deadlineHearts || 0,
@@ -170,24 +174,25 @@ export function Task({
     try {
       // Update local state immediately
       if (chibiId) {
-        updateTask(id, { due_date: localDueDate });
+        updateTask(id, { due_date: localDueDate || null });
       }
       // Then save to server
-      await onDueDateChange(localDueDate);
+      await onDueDateChange(localDueDate || '');
       setShowDatePicker(false);
     } catch (error) {
       console.error('Error saving due date:', error);
       // Revert on error
       setLocalDueDate(due_date || '');
       if (chibiId) {
-        updateTask(id, { due_date });
+        updateTask(id, { due_date: due_date || null });
       }
     } finally {
       setIsSavingDate(false);
     }
   };
 
-  const formatDueDate = (dateString: string) => {
+  const formatDueDate = (dateString: string | undefined) => {
+    if (!dateString) return '';
     const date = new Date(dateString);
     return date.toLocaleDateString(undefined, { 
       month: 'short', 
