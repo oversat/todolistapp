@@ -111,7 +111,7 @@ export default function Home() {
   const [deletingTaskId, setDeletingTaskId] = useState<string | null>(null);
   const [chibiToDelete, setChibiToDelete] = useState<ChibiData | null>(null);
   const [newTaskText, setNewTaskText] = useState('');
-  const [selectedChibiType, setSelectedChibiType] = useState<keyof typeof CHIBI_IMAGES>('pink');
+  const [selectedChibiType, setSelectedChibiType] = useState<keyof typeof CHIBI_IMAGES>('fox');
   const [newChibiName, setNewChibiName] = useState('');
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [completingTaskId, setCompletingTaskId] = useState<string | null>(null);
