@@ -478,7 +478,7 @@ export default function Home() {
 
                 <button
                   onClick={cleanCompletedTasks}
-                  className="w-full px-4 py-2 bg-[#33ff33]/20 text-[#33ff33] font-vt323 border border-[#33ff33]/30 hover:bg-[#33ff33]/30 transition-colors rounded"
+                  className="w-full px-4 py-2 bg-[#33ff33]/20 text-black font-vt323 border-2 border-[#33ff33] hover:bg-[#33ff33]/30 transition-colors rounded"
                 >
                   Clean All Completed
                 </button>
