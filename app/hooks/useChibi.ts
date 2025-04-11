@@ -290,6 +290,53 @@ export function useChibi() {
     }
   };
 
+  // Delete a chibi
+  const deleteChibi = async (chibiId: string) => {
+    console.log('Attempting to delete chibi with ID:', chibiId);
+    console.log('Current chibis before deletion:', chibis);
+    
+    try {
+      // Check authentication first
+      const { data: { user }, error: authError } = await supabase.auth.getUser();
+      if (authError) {
+        console.error('Authentication error:', authError);
+        throw new Error('Not authenticated');
+      }
+      if (!user) {
+        console.error('No authenticated user found');
+        throw new Error('No authenticated user found');
+      }
+      console.log('Authenticated user:', user.id);
+
+      // First delete from the database
+      const { error: deleteError } = await supabase
+        .from('chibis')
+        .delete()
+        .eq('id', chibiId)
+        .eq('user_id', user.id); // Add user_id check for extra security
+
+      if (deleteError) {
+        console.error('Error in deleteChibi:', deleteError);
+        throw deleteError;
+      }
+
+      console.log('Successfully deleted chibi from database');
+      
+      // Update local state
+      const updatedChibis = chibis.filter(chibi => chibi.id !== chibiId);
+      console.log('Updated chibis after deletion:', updatedChibis);
+      setChibis(updatedChibis);
+
+      // If the deleted chibi was the current chibi, reset the current chibi index
+      if (currentChibiIndex >= 0 && chibis[currentChibiIndex]?.id === chibiId) {
+        setCurrentChibiIndex(-1);
+      }
+    } catch (error) {
+      console.error('Error deleting chibi:', error);
+      throw error;
+    }
+  };
+
   return {
     chibis,
     currentChibiIndex,
@@ -305,6 +352,7 @@ export function useChibi() {
     updateTaskNotes,
     updateTaskDueDate,
     resetData,
-    fetchChibis
+    fetchChibis,
+    deleteChibi
   };
 } 

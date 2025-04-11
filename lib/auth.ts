@@ -121,7 +121,7 @@ export async function signInAsGuest(): Promise<{ data: any; error: AuthError | n
 export async function signUp(
   email: string,
   password: string,
-  username: string
+  username: string // Keep parameter for backward compatibility
 ): Promise<{ data: any; error: AuthError | null }> {
   try {
     // Validate inputs
@@ -135,11 +135,9 @@ export async function signUp(
       return { data: null, error: { message: passwordValidation.message! } };
     }
 
-    const usernameValidation = validateUsername(username);
-    if (!usernameValidation.valid) {
-      return { data: null, error: { message: usernameValidation.message! } };
-    }
-
+    // Generate a default username if none provided
+    const defaultUsername = email.split('@')[0];
+    
     // 1. Create auth user
     const { data: authData, error: authError } = await supabase.auth.signUp({
       email,
@@ -151,14 +149,14 @@ export async function signUp(
 
     if (authError) throw authError;
 
-    // 2. Create user profile
+    // 2. Create user profile with generated username
     if (authData.user) {
       const { error: profileError } = await supabase
         .from('users')
         .insert([
           {
             id: authData.user.id,
-            username,
+            username: defaultUsername,
           },
         ]);
 

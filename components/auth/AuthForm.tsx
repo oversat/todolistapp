@@ -17,7 +17,6 @@ export function AuthForm() {
   const [formData, setFormData] = useState({
     email: '',
     password: '',
-    username: '',
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -40,13 +39,6 @@ export function AuthForm() {
       newErrors.password = passwordValidation.message!;
     }
 
-    if (isSignUp) {
-      const usernameValidation = validateUsername(formData.username);
-      if (!usernameValidation.valid) {
-        newErrors.username = usernameValidation.message!;
-      }
-    }
-
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   }
@@ -54,7 +46,6 @@ export function AuthForm() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     
-    // If both email and password are empty in login mode, treat as guest login
     if (!isSignUp && formData.email === '' && formData.password === '') {
       handleGuestSignIn();
       return;
@@ -69,7 +60,7 @@ export function AuthForm() {
         const { error } = await signUp(
           formData.email,
           formData.password,
-          formData.username
+          formData.email.split('@')[0]
         );
         if (error) throw error;
         setVerificationSent(true);
@@ -179,22 +170,6 @@ export function AuthForm() {
         {isSignUp ? 'Create Account' : 'Welcome Back'}
       </h1>
       <form onSubmit={handleSubmit} className="space-y-4">
-        {isSignUp && (
-          <div className="space-y-2">
-            <Label htmlFor="username">Username</Label>
-            <Input
-              id="username"
-              value={formData.username}
-              onChange={(e) =>
-                setFormData({ ...formData, username: e.target.value })
-              }
-              className={errors.username ? 'border-destructive' : ''}
-            />
-            {errors.username && (
-              <p className="text-sm text-destructive">{errors.username}</p>
-            )}
-          </div>
-        )}
         <div className="space-y-2">
           <Label htmlFor="email">Email</Label>
           <Input
