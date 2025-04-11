@@ -24,11 +24,11 @@ export function formatDate(date: Date) {
 }
 
 export const CHIBI_IMAGES = {
-  fox: '/fox.png',
-  panda: '/panda.png',
-  purplebunny: '/purplebunny.png',
-  redcat: '/redcat.png',
-  yellowdog: '/yellowdog-full.png'
+  fox: '/images/fox.png',
+  panda: '/images/panda.png',
+  purplebunny: '/images/purplebunny.png',
+  redcat: '/images/redcat.png',
+  yellowdog: '/images/yellowdog.png'
 } as const;
 
 export type ChibiType = keyof typeof CHIBI_IMAGES;

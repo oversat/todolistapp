@@ -9,8 +9,6 @@ interface ChibiProps {
   id?: string;
   name: string;
   image: string;
-  imageLayer1?: string;
-  imageLayer2?: string;
   tasks?: Array<{
     id: string;
     text: string;
@@ -106,8 +104,6 @@ export function Chibi({
   id, 
   name, 
   image,
-  imageLayer1,
-  imageLayer2, 
   tasks = [], 
   happiness = 0,
   energy = 0,
@@ -115,45 +111,34 @@ export function Chibi({
   onDelete 
 }: ChibiProps) {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  const [imageError, setImageError] = useState(false);
-  const [imagesLoaded, setImagesLoaded] = useState({ layer1: false, layer2: false });
   const { stats } = useChibiStats(id || '');
 
   // Cap the values at 4
   const cappedDeadlineHearts = Math.min(stats?.deadlineHearts || 0, 4);
   const cappedNoteHearts = Math.min(stats?.noteHearts || 0, 4);
 
-  console.log('Chibi component rendered with props:', { 
-    id, 
-    name, 
-    image,
-    imageLayer1,
-    imageLayer2,
-    imagesLoaded 
-  });
-
-  const handleImageLoad = (layer: 'layer1' | 'layer2') => {
-    console.log(`Image ${layer} loaded successfully`);
-    setImagesLoaded(prev => ({ ...prev, [layer]: true }));
-  };
-
-  const handleImageError = (layer?: string) => {
-    console.error(`Image failed to load${layer ? ` for ${layer}` : ''}`);
-    setImageError(true);
-  };
-
   const handleDeleteClick = (e: React.MouseEvent) => {
-    console.log('Delete button clicked');
     e.stopPropagation();
     if (onDelete) {
-      console.log('onDelete handler exists, showing dialog');
       setShowDeleteDialog(true);
-    } else {
-      console.log('No onDelete handler provided');
     }
   };
 
   const activeTasks = tasks.filter(task => !task.completed).length;
+
+  // Different rendering methods based on image path
+  const renderImage = () => {
+    return (
+      <Image
+        src={image}
+        alt={name}
+        width={192}
+        height={192}
+        className="object-contain"
+        priority
+      />
+    );
+  };
 
   return (
     <div className="flex flex-col items-center p-4">
@@ -188,24 +173,7 @@ export function Chibi({
           className="relative w-48 h-48 mx-auto cursor-pointer transform transition-transform hover:scale-105 mb-4"
           onClick={onSelect}
         >
-          {!imageError ? (
-            <div className="relative w-full h-full">
-              <Image
-                src={image}
-                alt={name}
-                width={192}
-                height={192}
-                className="object-contain"
-                onError={() => handleImageError()}
-                priority
-                unoptimized
-              />
-            </div>
-          ) : (
-            <div className="w-full h-full flex items-center justify-center bg-gray-200">
-              <span className="text-gray-500">Image not available</span>
-            </div>
-          )}
+          {renderImage()}
         </div>
         <h3 className="font-vt323 text-4xl text-black mb-4">{name}</h3>
         <div className="space-y-4 w-full">
@@ -222,22 +190,14 @@ export function Chibi({
 
       <DeleteChibiDialog
         isOpen={showDeleteDialog}
-        onClose={() => {
-          console.log('Delete dialog closed');
-          setShowDeleteDialog(false);
-        }}
+        onClose={() => setShowDeleteDialog(false)}
         onConfirm={() => {
-          console.log('Delete confirmed in Chibi component');
-          if (onDelete) {
-            console.log('Calling onDelete handler');
-            onDelete();
-          }
+          if (onDelete) onDelete();
           setShowDeleteDialog(false);
         }}
         chibiName={name}
       />
 
-      {/* Add the keyframes style to the document */}
       <style jsx global>{pulseGlowStyle}</style>
     </div>
   );
