@@ -3,7 +3,7 @@ import { supabase } from '@/lib/supabase';
 
 export interface ChibiStats {
   id: string;
-  deadlineHearts: number;
+  discipline: number;
   noteHearts: number;
   last_fed: Date;
   health: number;
@@ -47,11 +47,9 @@ export function useChibiStats(chibiId: string, tasks: Task[] = []): ChibiStatsHo
 
   // Simplified heart calculation - just check for non-empty content
   const calculateHearts = (tasks: Task[]) => {
-    const tasksWithDeadlines = tasks.filter(task => 
-      task.due_date && 
-      !task.completed && 
-      new Date(task.due_date) > new Date()
-    ).length;
+    const completedTasks = tasks.filter(task => task.completed).length;
+    const totalTasks = tasks.length;
+    const discipline = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
     
     const tasksWithNotes = tasks.filter(task => 
       task.notes && 
@@ -60,7 +58,7 @@ export function useChibiStats(chibiId: string, tasks: Task[] = []): ChibiStatsHo
     ).length;
     
     return {
-      deadlineHearts: Math.min(tasksWithDeadlines, 4),
+      discipline,
       noteHearts: Math.min(tasksWithNotes, 4)
     };
   };
@@ -83,13 +81,13 @@ export function useChibiStats(chibiId: string, tasks: Task[] = []): ChibiStatsHo
   useEffect(() => {
     setLoading(true);
     const uncompletedTaskCount = tasks.filter(task => !task.completed).length;
-    const { deadlineHearts, noteHearts } = calculateHearts(tasks);
+    const { discipline, noteHearts } = calculateHearts(tasks);
     const energy = calculateEnergy(uncompletedTaskCount);
     const hunger = 100 - energy;
 
     setStats({
       id: chibiId,
-      deadlineHearts,
+      discipline,
       noteHearts,
       last_fed: new Date(),
       health: 100,

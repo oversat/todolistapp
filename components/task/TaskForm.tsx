@@ -48,7 +48,7 @@ export function TaskForm({ chibiId, onTaskCreated, onImmediateUpdate }: TaskForm
             user_id: user.id,
             title: formData.title,
             description: formData.description,
-            due_date: formData.dueDate,
+            due_date: formData.dueDate.toISOString(),
             notes: formData.notes
           },
         ]);
