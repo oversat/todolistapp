@@ -90,7 +90,7 @@ interface AwakeZoneHealthProps {
   chibiId: string;
   onTaskStatusChange?: (hasNotes: boolean, hasDueDate: boolean) => void;
   immediateUpdate?: {
-    deadlineHearts?: number;
+    discipline?: number;
     noteHearts?: number;
   };
 }
@@ -98,11 +98,11 @@ interface AwakeZoneHealthProps {
 export function AwakeZoneHealth({ chibiId, onTaskStatusChange, immediateUpdate }: AwakeZoneHealthProps) {
   const { stats, loading } = useChibiStats(chibiId);
   const [localHearts, setLocalHearts] = useState({
-    deadlineHearts: 0,
+    discipline: 0,
     noteHearts: 0
   });
   const [showNewIcon, setShowNewIcon] = useState<{
-    deadline?: boolean;
+    discipline?: boolean;
     notes?: boolean;
   }>({});
 
@@ -110,12 +110,12 @@ export function AwakeZoneHealth({ chibiId, onTaskStatusChange, immediateUpdate }
   useEffect(() => {
     if (immediateUpdate) {
       setLocalHearts({
-        deadlineHearts: immediateUpdate.deadlineHearts ?? localHearts.deadlineHearts,
+        discipline: immediateUpdate.discipline ?? localHearts.discipline,
         noteHearts: immediateUpdate.noteHearts ?? localHearts.noteHearts
       });
     } else if (stats) {
       setLocalHearts({
-        deadlineHearts: Math.min(stats.deadlineHearts, 4),
+        discipline: stats.discipline,
         noteHearts: Math.min(stats.noteHearts, 4)
       });
     }
@@ -125,19 +125,19 @@ export function AwakeZoneHealth({ chibiId, onTaskStatusChange, immediateUpdate }
   useEffect(() => {
     if (onTaskStatusChange) {
       const hasNotes = localHearts.noteHearts > 0;
-      const hasDueDate = localHearts.deadlineHearts > 0;
+      const hasDueDate = localHearts.discipline > 0;
       onTaskStatusChange(hasNotes, hasDueDate);
     }
   }, [localHearts, onTaskStatusChange]);
 
   // Show new icon animation when status changes
   useEffect(() => {
-    if (localHearts.deadlineHearts > 0) {
-      setShowNewIcon(prev => ({ ...prev, deadline: true }));
-      const timer = setTimeout(() => setShowNewIcon(prev => ({ ...prev, deadline: false })), 300);
+    if (localHearts.discipline > 0) {
+      setShowNewIcon(prev => ({ ...prev, discipline: true }));
+      const timer = setTimeout(() => setShowNewIcon(prev => ({ ...prev, discipline: false })), 300);
       return () => clearTimeout(timer);
     }
-  }, [localHearts.deadlineHearts]);
+  }, [localHearts.discipline]);
 
   useEffect(() => {
     if (localHearts.noteHearts > 0) {
@@ -163,8 +163,8 @@ export function AwakeZoneHealth({ chibiId, onTaskStatusChange, immediateUpdate }
             key={`deadline-${index}`}
             className={cn(
               "h-4 w-4 text-[#ff69b4]",
-              index < localHearts.deadlineHearts && "pulse-glow-pink",
-              showNewIcon.deadline && index === localHearts.deadlineHearts - 1 && "pop-in"
+              index < localHearts.discipline && "pulse-glow-pink",
+              showNewIcon.discipline && index === localHearts.discipline - 1 && "pop-in"
             )}
           />
         ))}
