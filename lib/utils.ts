@@ -28,7 +28,7 @@ export const CHIBI_IMAGES = {
   panda: '/images/panda.png',
   purplebunny: '/images/purplebunny.png',
   redcat: '/images/redcat.png',
-  yellowdog: '/images/yellowdog.png'
+  yellowdog: '/images/yellowdog-full.png'
 } as const;
 
 export type ChibiType = keyof typeof CHIBI_IMAGES;
