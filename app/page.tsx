@@ -10,7 +10,7 @@ import { Ghost, Gamepad2, Moon, Settings, LogOut } from 'lucide-react';
 import { TabsRoot as Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/navigation/tabs';
 import { CHIBI_IMAGES } from '@/lib/utils';
 import { Chibi } from '@/components/chibi/Chibi';
-import { useChibi } from './hooks/useChibi';
+import { useChibi, ChibiData } from './hooks/useChibi';
 import { useSettings } from '@/hooks/useSettings';
 import { useEmojiEffect } from './hooks/useEmojiEffect';
 import { DeleteTaskDialog } from '@/components/task/DeleteTaskDialog';
@@ -23,6 +23,7 @@ import { SleepZoneAnalytics } from '@/components/data/visualization/SleepZoneAna
 import { ChibiHealthDisplay } from '@/components/data/visualization/ChibiHealthDisplay';
 import ChatTab, { ChatTabHandle } from '@/components/chat/ChatTab';
 import { cn } from '@/lib/utils';
+import { DeleteChibiDialog } from '@/components/chibi/DeleteChibiDialog';
 
 // Define z-index layers at the top of the file after imports
 const zLayers = {
@@ -77,7 +78,8 @@ export default function Home() {
     editTask,
     resetData,
     updateTaskNotes,
-    updateTaskDueDate
+    updateTaskDueDate,
+    deleteChibi
   } = useChibi();
 
   const { settings, updateSettings } = useSettings();
@@ -103,6 +105,7 @@ export default function Home() {
   const [showResetDialog, setShowResetDialog] = useState(false);
   const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
   const [deletingTaskId, setDeletingTaskId] = useState<string | null>(null);
+  const [chibiToDelete, setChibiToDelete] = useState<ChibiData | null>(null);
   const [newTaskText, setNewTaskText] = useState('');
   const [selectedChibiType, setSelectedChibiType] = useState<keyof typeof CHIBI_IMAGES>('pink');
   const [newChibiName, setNewChibiName] = useState('');
@@ -261,6 +264,7 @@ export default function Home() {
                       onClick={() => setCurrentChibiIndex(index)}
                     >
                       <Chibi
+                        id={chibi.id}
                         name={chibi.name}
                         image={CHIBI_IMAGES[chibi.type as keyof typeof CHIBI_IMAGES]}
                         happiness={chibi.happiness}
@@ -268,6 +272,10 @@ export default function Home() {
                         onSelect={() => {
                           setCurrentChibiIndex(index);
                           setMainTab('awake');
+                        }}
+                        onDelete={() => {
+                          console.log('Delete button clicked for chibi:', chibi);
+                          setChibiToDelete(chibi);
                         }}
                       />
                     </div>
@@ -311,12 +319,22 @@ export default function Home() {
                     style={{ zIndex: 3 }}
                   >
                     {/* Task Counts */}
-                    <div className="flex justify-between font-vt323 text-[#33ff33]">
-                      <div>{currentChibi.tasks.filter((t: { completed: boolean }) => t.completed).length} tasks</div>
-                      <div>{currentChibi.tasks.filter((t: { completed: boolean }) => !t.completed).length} todo</div>
+                    <div className="flex justify-end font-vt323 text-[#33ff33]">
+                      <div>{currentChibi.tasks.filter((t: { completed: boolean }) => !t.completed).length} tasks</div>
                     </div>
 
-                    {/* Corner Stats */}
+                    {/* Hunger Bar */}
+                    <div className="absolute top-6 left-6 font-vt323 text-[#33ff33] text-sm">
+                      <div>Hunger</div>
+                      <div className="w-24 h-2 bg-[#1a1a1a] rounded-sm overflow-hidden">
+                        <div 
+                          className="h-full bg-[#ff69b4]" 
+                          style={{ width: `${currentChibi.energy}%` }}
+                        />
+                      </div>
+                    </div>
+
+                    {/* Energy Bar */}
                     <div className="absolute bottom-6 left-6 font-vt323 text-[#33ff33] text-sm">
                       <div>Energy</div>
                       <div className="w-24 h-2 bg-[#1a1a1a] rounded-sm overflow-hidden">
@@ -327,6 +345,7 @@ export default function Home() {
                       </div>
                     </div>
 
+                    {/* Happiness Hearts */}
                     <div className="absolute bottom-6 right-6 font-vt323 text-[#33ff33] text-sm text-right">
                       <div>Happy</div>
                       <div className="flex justify-end">
@@ -402,7 +421,7 @@ export default function Home() {
                   <div className="flex-1 overflow-hidden">
                     {taskViewTab === 'tasks' ? (
                       <div className="h-[calc(100%-60px)] overflow-y-auto p-4" style={{ zIndex: zLayers.background }}>
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-4">
                           {currentChibi.tasks
                             .filter((task: { completed: boolean }) => !task.completed)
                             .map((task) => (
@@ -582,6 +601,24 @@ export default function Home() {
         onClose={() => setShowResetDialog(false)}
         onConfirm={resetData}
       />
+
+      {chibiToDelete && (
+        <DeleteChibiDialog
+          isOpen={true}
+          onClose={() => {
+            console.log('Delete dialog closed');
+            setChibiToDelete(null);
+          }}
+          onConfirm={() => {
+            console.log('Delete confirmed for chibi:', chibiToDelete);
+            if (chibiToDelete) {
+              deleteChibi(chibiToDelete.id);
+              setChibiToDelete(null);
+            }
+          }}
+          chibiName={chibiToDelete.name}
+        />
+      )}
     </MainLayout>
   );
 }

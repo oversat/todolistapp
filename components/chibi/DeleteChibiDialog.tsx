@@ -1,22 +1,28 @@
-import React from 'react';
 import { Dialog, DialogButton } from '@/components/ui/Dialog';
 
-interface DeleteTaskDialogProps {
+interface DeleteChibiDialogProps {
   isOpen: boolean;
   onClose: () => void;
   onConfirm: () => void;
+  chibiName: string;
 }
 
-export function DeleteTaskDialog({ isOpen, onClose, onConfirm }: DeleteTaskDialogProps) {
+export function DeleteChibiDialog({
+  isOpen,
+  onClose,
+  onConfirm,
+  chibiName,
+}: DeleteChibiDialogProps) {
   return (
     <Dialog
-      title="DELETE TASK"
+      title="DELETE CHIBI"
       isOpen={isOpen}
       onClose={onClose}
     >
       <div className="text-center space-y-6">
-        <p className="font-vt323 text-xl text-green-500">Are you sure you want to delete this task?</p>
-        
+        <p className="font-vt323 text-xl text-green-500">
+          Are you REALLY sure you want to delete this cute chibi checklist? This action cannot be undone.
+        </p>
         <div className="flex justify-center space-x-4">
           <DialogButton
             variant="secondary"
@@ -26,10 +32,7 @@ export function DeleteTaskDialog({ isOpen, onClose, onConfirm }: DeleteTaskDialo
           </DialogButton>
           <DialogButton
             variant="danger"
-            onClick={() => {
-              onConfirm();
-              onClose();
-            }}
+            onClick={onConfirm}
           >
             DELETE
           </DialogButton>

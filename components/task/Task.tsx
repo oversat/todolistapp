@@ -2,6 +2,39 @@ import React, { useState } from 'react';
 import { Check, Edit2, Trash2, MessageSquare, Clock } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
+// Add keyframes for the pulsing glow
+const pulseGlowStyle = `
+  @keyframes pulseGlow {
+    0% { 
+      box-shadow: 0 0 2px #29cc29,
+                 0 0 4px #29cc29,
+                 0 0 6px rgba(41, 204, 41, 0.7),
+                 0 0 8px rgba(41, 204, 41, 0.6);
+      background: rgba(41, 204, 41, 0.15);
+    }
+    50% { 
+      box-shadow: 0 0 4px #29cc29,
+                 0 0 8px #29cc29,
+                 0 0 12px rgba(41, 204, 41, 0.7),
+                 0 0 24px rgba(41, 204, 41, 0.6);
+      background: rgba(41, 204, 41, 0.3);
+    }
+    100% { 
+      box-shadow: 0 0 2px #29cc29,
+                 0 0 4px #29cc29,
+                 0 0 6px rgba(41, 204, 41, 0.7),
+                 0 0 8px rgba(41, 204, 41, 0.6);
+      background: rgba(41, 204, 41, 0.15);
+    }
+  }
+  .pulse-glow {
+    animation: pulseGlow 3s infinite;
+    border-radius: 60%;
+    position: relative;
+    z-index: 1;
+  }
+`;
+
 interface TaskProps {
   id: string;
   text: string;
@@ -104,15 +137,21 @@ export function Task({
             <>
               <button
                 onClick={() => setShowDatePicker(!showDatePicker)}
-                className="text-white hover:bg-[#1084d0] p-0.5"
-                title="Set Due Date"
+                className={cn(
+                  "text-white hover:bg-[#1084d0] p-0.5 relative",
+                  due_date && "pulse-glow"
+                )}
+                title={due_date ? `Due: ${formatDueDate(due_date)}` : "Set Due Date"}
               >
                 <Clock size={10} />
               </button>
               <button
                 onClick={() => setShowNotes(!showNotes)}
-                className="text-white hover:bg-[#1084d0] p-0.5"
-                title={showNotes ? "Hide Notes" : "Show Notes"}
+                className={cn(
+                  "text-white hover:bg-[#1084d0] p-0.5 relative",
+                  notes && notes.trim() !== "" && "pulse-glow"
+                )}
+                title={notes && notes.trim() !== "" ? "View Notes" : "Add Notes"}
               >
                 <MessageSquare size={10} />
               </button>
@@ -122,6 +161,7 @@ export function Task({
             <button
               onClick={onEdit}
               className="text-white hover:bg-[#1084d0] p-0.5"
+              title="Edit Task Title"
             >
               <Edit2 size={10} />
             </button>
@@ -130,6 +170,7 @@ export function Task({
             <button
               onClick={onDelete}
               className="text-white hover:bg-[#1084d0] p-0.5"
+              title="Delete Task"
             >
               <Trash2 size={10} />
             </button>
@@ -218,6 +259,9 @@ export function Task({
           )}
         </div>
       </div>
+
+      {/* Add the keyframes style to the document */}
+      <style jsx global>{pulseGlowStyle}</style>
     </div>
   );
 } 
