@@ -33,6 +33,9 @@ export async function signInAsGuest(): Promise<{ data: any; error: AuthError | n
           password: GUEST_PASSWORD,
           options: {
             emailRedirectTo: `${window.location.origin}/auth/callback`,
+            data: {
+              is_guest: true
+            }
           },
         });
 
@@ -52,57 +55,20 @@ export async function signInAsGuest(): Promise<{ data: any; error: AuthError | n
           throw retryError;
         }
 
+        // Ensure we have a profile for the guest user
+        if (retryData.user) {
+          await ensureGuestProfile(retryData.user.id);
+        }
+
         return { data: retryData, error: null };
       }
       
       throw signInError;
     }
 
-    console.log('Guest login successful, checking profile...');
     // If successful, ensure we have a profile for the guest user
     if (signInData.user) {
-      // Check if user has a profile, if not create one
-      const { data: profileData, error: profileCheckError } = await supabase
-        .from('users')
-        .select('id')
-        .eq('id', signInData.user.id)
-        .single();
-
-      if (profileCheckError && profileCheckError.code !== 'PGRST116') {
-        // If error is not 'no rows returned', it's a real error
-        console.error('Profile check error:', profileCheckError);
-      }
-
-      // If no profile exists, create one
-      if (!profileData) {
-        console.log('Creating guest profile...');
-        const { error: createProfileError } = await supabase
-          .from('users')
-          .insert([{
-            id: signInData.user.id,
-            username: 'Guest',
-          }]);
-
-        if (createProfileError) {
-          console.error('Create guest profile error:', createProfileError);
-        }
-
-        console.log('Creating default chibi for guest...');
-        // Create a default chibi for guest users
-        const { error: createChibiError } = await supabase
-          .from('chibis')
-          .insert([{
-            user_id: signInData.user.id,
-            name: 'Guest Chibi',
-            type: 'fox',
-            happiness: 70,
-            energy: 80,
-          }]);
-
-        if (createChibiError) {
-          console.error('Create guest chibi error:', createChibiError);
-        }
-      }
+      await ensureGuestProfile(signInData.user.id);
     }
 
     return { data: signInData, error: null };
@@ -115,6 +81,57 @@ export async function signInAsGuest(): Promise<{ data: any; error: AuthError | n
         code: error instanceof Error ? error.name : undefined,
       },
     };
+  }
+}
+
+async function ensureGuestProfile(userId: string) {
+  try {
+    // Check if user has a profile
+    const { data: profileData, error: profileCheckError } = await supabase
+      .from('users')
+      .select('id')
+      .eq('id', userId)
+      .single();
+
+    if (profileCheckError && profileCheckError.code !== 'PGRST116') {
+      console.error('Profile check error:', profileCheckError);
+      return;
+    }
+
+    // If no profile exists, create one
+    if (!profileData) {
+      console.log('Creating guest profile...');
+      const { error: createProfileError } = await supabase
+        .from('users')
+        .insert([{
+          id: userId,
+          username: 'Guest',
+        }]);
+
+      if (createProfileError) {
+        console.error('Create guest profile error:', createProfileError);
+        return;
+      }
+
+      console.log('Creating default chibi for guest...');
+      // Create a default chibi for guest users
+      const { error: createChibiError } = await supabase
+        .from('chibis')
+        .insert([{
+          user_id: userId,
+          name: 'Guest Chibi',
+          type: 'fox',
+          happiness: 70,
+          energy: 80,
+          last_fed: new Date().toISOString()
+        }]);
+
+      if (createChibiError) {
+        console.error('Create guest chibi error:', createChibiError);
+      }
+    }
+  } catch (error) {
+    console.error('Error ensuring guest profile:', error);
   }
 }
 
@@ -201,7 +218,18 @@ export async function signIn(
 
 export async function signOut(): Promise<{ error: AuthError | null }> {
   try {
+    // Clear any cached data first
+    localStorage.removeItem('supabase.auth.token');
+    sessionStorage.removeItem('supabase.auth.token');
+    
     const { error } = await supabase.auth.signOut();
+    
+    // Additional cleanup
+    if (!error) {
+      // Clear any remaining auth state
+      await supabase.auth.getSession();
+    }
+    
     return { error: error ? { message: error.message } : null };
   } catch (error) {
     return {
