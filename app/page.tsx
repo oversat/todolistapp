@@ -245,7 +245,8 @@ export default function Home() {
         </TabsList>
 
         <TabsContent value="chibis" className="mt-6">
-          <Window title="CHIBI SELECT" className="mb-6" zIndex={zLayers.windowFrame}>
+          <Window title="TODOMAGATCHI" className="mb-6" zIndex={zLayers.windowFrame}>
+            <h1 className="text-center font-vt323 text-[#33ff33] text-6xl mb-8 animate-pulse">TODOMAGATCHI</h1>
             {chibis.length === 0 || showCreateForm ? (
               createChibiForm
             ) : (
