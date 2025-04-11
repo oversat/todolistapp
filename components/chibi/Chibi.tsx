@@ -9,11 +9,13 @@ interface ChibiProps {
   id?: string;
   name: string;
   image: string;
-  tasks: Array<{
+  tasks?: Array<{
     id: string;
     text: string;
     completed: boolean;
   }>;
+  happiness?: number;
+  energy?: number;
   onSelect?: () => void;
   onDelete?: () => void;
 }
@@ -98,7 +100,16 @@ const pulseGlowStyle = `
   }
 `;
 
-export function Chibi({ id, name, image, tasks = [], onSelect, onDelete }: ChibiProps) {
+export function Chibi({ 
+  id, 
+  name, 
+  image, 
+  tasks = [], 
+  happiness = 0,
+  energy = 0,
+  onSelect, 
+  onDelete 
+}: ChibiProps) {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [imageError, setImageError] = useState(false);
   const { stats } = useChibiStats(id || '');
