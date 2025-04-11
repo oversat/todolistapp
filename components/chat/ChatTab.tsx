@@ -101,39 +101,43 @@ const ChatTab = forwardRef<ChatTabHandle, ChatTabProps>(({ chibiId, chibiName, c
 
   return (
     <div className="h-full flex flex-col">
-      <div className="flex-1 overflow-y-auto p-4">
-        {messages.map((message, index) => (
-          <div
-            key={index}
-            className={cn(
-              "mb-4",
-              message.role === 'user' ? 'text-right' : 'text-left'
-            )}
-          >
-            <div
-              className={cn(
-                "inline-block max-w-[70%] p-3 rounded-lg",
-                message.role === 'user'
-                  ? 'bg-blue-500 text-white'
-                  : 'bg-gray-200 text-gray-800'
-              )}
-            >
-              {message.content}
-            </div>
-          </div>
-        ))}
-        {isLoading && (
-          <div className="text-left mb-4">
-            <div className="inline-block max-w-[70%] p-3 rounded-lg bg-gray-200 text-gray-800">
-              <div className="flex items-center">
-                <div className="w-2 h-2 bg-gray-500 rounded-full animate-bounce mr-1"></div>
-                <div className="w-2 h-2 bg-gray-500 rounded-full animate-bounce mr-1" style={{ animationDelay: '0.2s' }}></div>
-                <div className="w-2 h-2 bg-gray-500 rounded-full animate-bounce" style={{ animationDelay: '0.4s' }}></div>
+      <div className="flex-1 p-4">
+        <div className="h-[calc(100vh-300px)] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200">
+          <div className="flex flex-col-reverse">
+            {isLoading && (
+              <div className="text-left mb-4">
+                <div className="inline-block max-w-[70%] p-3 rounded-lg bg-gray-200 text-gray-800">
+                  <div className="flex items-center">
+                    <div className="w-2 h-2 bg-gray-500 rounded-full animate-bounce mr-1"></div>
+                    <div className="w-2 h-2 bg-gray-500 rounded-full animate-bounce mr-1" style={{ animationDelay: '0.2s' }}></div>
+                    <div className="w-2 h-2 bg-gray-500 rounded-full animate-bounce" style={{ animationDelay: '0.4s' }}></div>
+                  </div>
+                </div>
               </div>
-            </div>
+            )}
+            {messages.map((message, index) => (
+              <div
+                key={index}
+                className={cn(
+                  "mb-4",
+                  message.role === 'user' ? 'text-right' : 'text-left'
+                )}
+              >
+                <div
+                  className={cn(
+                    "inline-block max-w-[70%] p-3 rounded-lg",
+                    message.role === 'user'
+                      ? 'bg-blue-500 text-white'
+                      : 'bg-gray-200 text-gray-800'
+                  )}
+                >
+                  {message.content}
+                </div>
+              </div>
+            ))}
+            <div ref={messagesEndRef} />
           </div>
-        )}
-        <div ref={messagesEndRef} />
+        </div>
       </div>
     </div>
   );

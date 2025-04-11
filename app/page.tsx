@@ -355,15 +355,15 @@ export default function Home() {
                             value={newTaskText}
                             onChange={(e) => setNewTaskText(e.target.value)}
                             onKeyPress={(e) => e.key === 'Enter' && handleAddTask()}
-                            className="flex-grow px-3 py-2 bg-white border-2 border-[#000080] text-gray-800 font-vt323 text-lg rounded focus:outline-none"
+                            className="min-w-0 flex-1 px-3 py-2 bg-white border-2 border-[#000080] text-gray-800 font-vt323 text-lg rounded focus:outline-none"
                             placeholder="Add a new task..."
                           />
                           <button
                             onClick={handleAddTask}
                             disabled={!newTaskText.trim()}
-                            className="px-4 py-2 bg-[#c3c3c3] text-gray-800 font-vt323 border-2 border-t-white border-l-white border-r-gray-600 border-b-gray-600 hover:bg-[#d4d4d4] transition-colors disabled:opacity-50"
+                            className="whitespace-nowrap px-4 py-2 bg-[#c3c3c3] text-gray-800 font-vt323 border-2 border-t-white border-l-white border-r-gray-600 border-b-gray-600 hover:bg-[#d4d4d4] transition-colors disabled:opacity-50"
                           >
-                            Add
+                            Add Task
                           </button>
                         </>
                       ) : (
@@ -372,28 +372,28 @@ export default function Home() {
                           if (currentChibi && chatTabRef.current) {
                             chatTabRef.current.handleSubmit(e);
                           }
-                        }} className="flex-grow flex gap-2">
+                        }} className="flex gap-2 w-full">
                           <input
                             type="text"
-                            className="flex-grow px-3 py-2 bg-white border-2 border-[#000080] text-gray-800 font-vt323 text-lg rounded focus:outline-none"
+                            className="min-w-0 flex-1 px-3 py-2 bg-white border-2 border-[#000080] text-gray-800 font-vt323 text-lg rounded focus:outline-none"
                             placeholder="Type your message..."
                           />
                           <button
                             type="submit"
-                            className="px-4 py-2 bg-[#c3c3c3] text-gray-800 font-vt323 border-2 border-t-white border-l-white border-r-gray-600 border-b-gray-600 hover:bg-[#d4d4d4] transition-colors"
+                            className="whitespace-nowrap px-4 py-2 bg-[#c3c3c3] text-gray-800 font-vt323 border-2 border-t-white border-l-white border-r-gray-600 border-b-gray-600 hover:bg-[#d4d4d4] transition-colors"
                           >
-                            Send
+                            Send Message
                           </button>
                         </form>
                       )}
                       <button
                         onClick={() => setTaskViewTab(taskViewTab === 'tasks' ? 'chat' : 'tasks')}
                         className={cn(
-                          "px-4 py-2 bg-[#c3c3c3] text-gray-800 font-vt323 border-2 border-t-white border-l-white border-r-gray-600 border-b-gray-600 hover:bg-[#d4d4d4] transition-colors",
-                          taskViewTab === 'tasks' ? 'glow-green' : 'glow-pink'
+                          "whitespace-nowrap px-4 py-2 bg-[#c3c3c3] text-gray-800 font-vt323 border-2 border-t-white border-l-white border-r-gray-600 border-b-gray-600 hover:bg-[#d4d4d4] transition-colors",
+                          taskViewTab === 'tasks' ? 'glow-pink' : 'glow-green'
                         )}
                       >
-                        {taskViewTab === 'tasks' ? 'Tasks' : 'Chat'}
+                        {taskViewTab === 'tasks' ? 'Chat' : 'Tasks'}
                       </button>
                     </div>
                   </div>
