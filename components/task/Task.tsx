@@ -99,7 +99,7 @@ export function Task({
   onDueDateChange,
   disabled = false
 }: TaskProps) {
-  const [localNotes, setLocalNotes] = useState(notes);
+  const [localNotes, setLocalNotes] = useState<string>(notes || '');
   const [hasUnsavedNotes, setHasUnsavedNotes] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [showNotes, setShowNotes] = useState(false);
@@ -120,7 +120,7 @@ export function Task({
 
   // Update local state when props change
   useEffect(() => {
-    setLocalNotes(notes);
+    setLocalNotes(notes || '');
     setLocalDueDate(due_date || '');
   }, [notes, due_date]);
 
@@ -146,7 +146,7 @@ export function Task({
     try {
       // Update local state immediately
       if (chibiId) {
-        updateTask(id, { notes: localNotes });
+        updateTask(id, { notes: localNotes || undefined });
       }
       // Then save to server
       await onNotesChange(localNotes);
@@ -154,9 +154,9 @@ export function Task({
     } catch (error) {
       console.error('Error saving notes:', error);
       // Revert on error
-      setLocalNotes(notes);
+      setLocalNotes(notes || '');
       if (chibiId) {
-        updateTask(id, { notes });
+        updateTask(id, { notes: notes || undefined });
       }
     } finally {
       setIsSaving(false);
@@ -174,7 +174,7 @@ export function Task({
     try {
       // Update local state immediately
       if (chibiId) {
-        updateTask(id, { due_date: localDueDate || null });
+        updateTask(id, { due_date: localDueDate || undefined });
       }
       // Then save to server
       await onDueDateChange(localDueDate || '');
@@ -184,7 +184,7 @@ export function Task({
       // Revert on error
       setLocalDueDate(due_date || '');
       if (chibiId) {
-        updateTask(id, { due_date: due_date || null });
+        updateTask(id, { due_date: due_date || undefined });
       }
     } finally {
       setIsSavingDate(false);
