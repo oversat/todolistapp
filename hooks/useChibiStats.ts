@@ -6,6 +6,8 @@ export interface ChibiStats {
   deadlineHearts: number;
   noteHearts: number;
   last_fed: Date;
+  health: number;
+  energy: number;
 }
 
 interface Task {
@@ -76,7 +78,9 @@ export function useChibiStats(chibiId: string) {
         id: chibiId,
         deadlineHearts,
         noteHearts,
-        last_fed: new Date()
+        last_fed: new Date(),
+        health: 50, // Default health value
+        energy: 50  // Default energy value
       });
     } catch (error) {
       console.error('Error fetching chibi stats:', error);
