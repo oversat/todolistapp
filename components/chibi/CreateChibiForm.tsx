@@ -12,7 +12,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { PostgrestError } from '@supabase/supabase-js';
 import { CHIBI_IMAGES } from '@/lib/utils';
 
-const CHIBI_TYPES = [
+interface ChibiType {
+  value: string;
+  label: string;
+}
+
+const CHIBI_TYPES: ChibiType[] = [
   { value: 'fox', label: 'Fox' },
   { value: 'panda', label: 'Panda' },
   { value: 'purplebunny', label: 'Purple Bunny' },
@@ -114,35 +119,14 @@ export function CreateChibiForm() {
                 {selectedType && (
                   <div className="flex items-center gap-2">
                     <div className="relative w-8 h-8">
-                      {selectedType.value === 'yellowdog' ? (
-                        <>
-                          <Image
-                            src={selectedType.imageLayer1}
-                            alt={selectedType.label}
-                            width={32}
-                            height={32}
-                            className="absolute inset-0 object-contain"
-                            unoptimized
-                          />
-                          <Image
-                            src={selectedType.imageLayer2}
-                            alt={`${selectedType.label} head`}
-                            width={32}
-                            height={32}
-                            className="absolute inset-0 object-contain"
-                            unoptimized
-                          />
-                        </>
-                      ) : (
-                        <Image
-                          src={CHIBI_IMAGES[selectedType.value as keyof typeof CHIBI_IMAGES]}
-                          alt={selectedType.label}
-                          width={32}
-                          height={32}
-                          className="object-contain"
-                          unoptimized
-                        />
-                      )}
+                      <Image
+                        src={CHIBI_IMAGES[selectedType.value as keyof typeof CHIBI_IMAGES]}
+                        alt={selectedType.label}
+                        width={32}
+                        height={32}
+                        className="object-contain"
+                        unoptimized
+                      />
                     </div>
                     {selectedType.label}
                   </div>
@@ -154,35 +138,14 @@ export function CreateChibiForm() {
                 <SelectItem key={type.value} value={type.value}>
                   <div className="flex items-center gap-2">
                     <div className="relative w-8 h-8">
-                      {type.value === 'yellowdog' ? (
-                        <>
-                          <Image
-                            src={type.imageLayer1}
-                            alt={type.label}
-                            width={32}
-                            height={32}
-                            className="absolute inset-0 object-contain"
-                            unoptimized
-                          />
-                          <Image
-                            src={type.imageLayer2}
-                            alt={`${type.label} head`}
-                            width={32}
-                            height={32}
-                            className="absolute inset-0 object-contain"
-                            unoptimized
-                          />
-                        </>
-                      ) : (
-                        <Image
-                          src={CHIBI_IMAGES[type.value as keyof typeof CHIBI_IMAGES]}
-                          alt={type.label}
-                          width={32}
-                          height={32}
-                          className="object-contain"
-                          unoptimized
-                        />
-                      )}
+                      <Image
+                        src={CHIBI_IMAGES[type.value as keyof typeof CHIBI_IMAGES]}
+                        alt={type.label}
+                        width={32}
+                        height={32}
+                        className="object-contain"
+                        unoptimized
+                      />
                     </div>
                     {type.label}
                   </div>
