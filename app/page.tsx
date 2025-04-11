@@ -6,7 +6,7 @@ import { Task } from '@/components/task/Task';
 import { FeedDialog } from '@/components/chibi/FeedDialog';
 import { EditTaskDialog } from '@/components/task/EditTaskDialog';
 import { ResetDataDialog } from '@/components/ui/ResetDataDialog';
-import { Ghost, Gamepad2, Moon, Settings, LogOut } from 'lucide-react';
+import { Ghost, Gamepad2, Moon, Settings, LogOut, Heart } from 'lucide-react';
 import { TabsRoot as Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/navigation/tabs';
 import { CHIBI_IMAGES } from '@/lib/utils';
 import { Chibi } from '@/components/chibi/Chibi';
@@ -24,6 +24,9 @@ import { ChibiHealthDisplay } from '@/components/data/visualization/ChibiHealthD
 import ChatTab, { ChatTabHandle } from '@/components/chat/ChatTab';
 import { cn } from '@/lib/utils';
 import { DeleteChibiDialog } from '@/components/chibi/DeleteChibiDialog';
+import { useChibiStats } from '@/hooks/useChibiStats';
+import { ChibiHealthChart } from '@/components/data/visualization/ChibiHealthChart';
+import { AwakeZoneHealth } from '@/components/data/visualization/AwakeZoneHealth';
 
 // Define z-index layers at the top of the file after imports
 const zLayers = {
@@ -84,6 +87,7 @@ export default function Home() {
 
   const { settings, updateSettings } = useSettings();
   const { emojis, showEmojis } = useEmojiEffect();
+  const { stats } = useChibiStats(currentChibi?.id || '');
   
   // Handle sign out
   const handleSignOut = async () => {
@@ -267,8 +271,7 @@ export default function Home() {
                         id={chibi.id}
                         name={chibi.name}
                         image={CHIBI_IMAGES[chibi.type as keyof typeof CHIBI_IMAGES]}
-                        happiness={chibi.happiness}
-                        energy={chibi.energy}
+                        tasks={chibi.tasks}
                         onSelect={() => {
                           setCurrentChibiIndex(index);
                           setMainTab('awake');
@@ -318,7 +321,7 @@ export default function Home() {
                     className="relative h-full p-4" 
                     style={{ zIndex: 3 }}
                   >
-                    {/* Task Counts */}
+                    {/* Task Count */}
                     <div className="flex justify-end font-vt323 text-[#33ff33]">
                       <div>{currentChibi.tasks.filter((t: { completed: boolean }) => !t.completed).length} tasks</div>
                     </div>
@@ -345,16 +348,9 @@ export default function Home() {
                       </div>
                     </div>
 
-                    {/* Happiness Hearts */}
+                    {/* Health Hearts */}
                     <div className="absolute bottom-6 right-6 font-vt323 text-[#33ff33] text-sm text-right">
-                      <div>Happy</div>
-                      <div className="flex justify-end">
-                        {[...Array(4)].map((_, i) => (
-                          <span key={i} className={i < Math.round(currentChibi.happiness / 25) ? 'text-[#33ff33]' : 'opacity-30'}>
-                            ♥
-                          </span>
-                        ))}
-                      </div>
+                      <AwakeZoneHealth chibiId={currentChibi.id} />
                     </div>
                   </div>
                 </div>
@@ -428,6 +424,7 @@ export default function Home() {
                               <Task
                                 key={task.id}
                                 {...task}
+                                chibiId={currentChibi.id}
                                 onComplete={() => handleTaskComplete(task.id)}
                                 onEdit={() => {
                                   setEditingTaskId(task.id);

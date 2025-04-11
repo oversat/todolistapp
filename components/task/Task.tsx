@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Check, Edit2, Trash2, MessageSquare, Clock } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useChibiStats } from '@/hooks/useChibiStats';
 
 // Add keyframes for the pulsing glow
 const pulseGlowStyle = `
@@ -43,6 +44,7 @@ interface TaskProps {
   notes?: string;
   due_date?: string;
   created_at: string;
+  chibiId?: string;
   onComplete?: () => void;
   onEdit?: () => void;
   onDelete?: () => void;
@@ -58,6 +60,7 @@ export function Task({
   notes = '',
   due_date,
   created_at,
+  chibiId,
   onComplete,
   onEdit,
   onDelete,
@@ -71,11 +74,33 @@ export function Task({
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [localDueDate, setLocalDueDate] = useState(due_date || '');
   const [isSavingDate, setIsSavingDate] = useState(false);
+  const { stats, updateTask } = useChibiStats(chibiId || '');
+  const { stats: chibiStats } = useChibiStats(chibiId || '');
+  const [localHearts, setLocalHearts] = useState({
+    deadlineHearts: stats?.deadlineHearts || 0,
+    noteHearts: stats?.noteHearts || 0
+  });
   const createdDate = new Date(created_at).toLocaleDateString();
   const createdTime = new Date(created_at).toLocaleTimeString([], { 
     hour: '2-digit', 
     minute: '2-digit' 
   });
+
+  // Update local state when props change
+  useEffect(() => {
+    setLocalNotes(notes);
+    setLocalDueDate(due_date || '');
+  }, [notes, due_date]);
+
+  // Update local hearts when stats change
+  useEffect(() => {
+    if (stats) {
+      setLocalHearts({
+        deadlineHearts: stats.deadlineHearts,
+        noteHearts: stats.noteHearts
+      });
+    }
+  }, [stats]);
 
   const handleNotesChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const newNotes = e.target.value;
@@ -87,27 +112,48 @@ export function Task({
     if (!onNotesChange) return;
     setIsSaving(true);
     try {
+      // Update local state immediately
+      if (chibiId) {
+        updateTask(id, { notes: localNotes });
+      }
+      // Then save to server
       await onNotesChange(localNotes);
       setHasUnsavedNotes(false);
     } catch (error) {
       console.error('Error saving notes:', error);
+      // Revert on error
+      setLocalNotes(notes);
+      if (chibiId) {
+        updateTask(id, { notes });
+      }
     } finally {
       setIsSaving(false);
     }
   };
 
   const handleDueDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setLocalDueDate(e.target.value);
+    const newDate = e.target.value;
+    setLocalDueDate(newDate);
   };
 
   const handleSaveDueDate = async () => {
     if (!onDueDateChange) return;
     setIsSavingDate(true);
     try {
+      // Update local state immediately
+      if (chibiId) {
+        updateTask(id, { due_date: localDueDate });
+      }
+      // Then save to server
       await onDueDateChange(localDueDate);
       setShowDatePicker(false);
     } catch (error) {
       console.error('Error saving due date:', error);
+      // Revert on error
+      setLocalDueDate(due_date || '');
+      if (chibiId) {
+        updateTask(id, { due_date });
+      }
     } finally {
       setIsSavingDate(false);
     }
@@ -139,9 +185,9 @@ export function Task({
                 onClick={() => setShowDatePicker(!showDatePicker)}
                 className={cn(
                   "text-white hover:bg-[#1084d0] p-0.5 relative",
-                  due_date && "pulse-glow"
+                  localDueDate && "pulse-glow"
                 )}
-                title={due_date ? `Due: ${formatDueDate(due_date)}` : "Set Due Date"}
+                title={localDueDate ? `Due: ${formatDueDate(localDueDate)}` : "Set Due Date"}
               >
                 <Clock size={10} />
               </button>
@@ -149,9 +195,9 @@ export function Task({
                 onClick={() => setShowNotes(!showNotes)}
                 className={cn(
                   "text-white hover:bg-[#1084d0] p-0.5 relative",
-                  notes && notes.trim() !== "" && "pulse-glow"
+                  localNotes && localNotes.trim() !== "" && "pulse-glow"
                 )}
-                title={notes && notes.trim() !== "" ? "View Notes" : "Add Notes"}
+                title={localNotes && localNotes.trim() !== "" ? "View Notes" : "Add Notes"}
               >
                 <MessageSquare size={10} />
               </button>

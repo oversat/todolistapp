@@ -1,21 +1,107 @@
 import React, { useState } from 'react';
 import Image from 'next/image';
-import { Skull } from 'lucide-react';
+import { Skull, Heart } from 'lucide-react';
 import { DeleteChibiDialog } from './DeleteChibiDialog';
+import { useChibiStats } from '@/hooks/useChibiStats';
+import { cn } from '@/lib/utils';
 
 interface ChibiProps {
   id?: string;
   name: string;
   image: string;
-  happiness: number;
-  energy: number;
+  tasks: Array<{
+    id: string;
+    text: string;
+    completed: boolean;
+  }>;
   onSelect?: () => void;
   onDelete?: () => void;
 }
 
-export function Chibi({ id, name, image, happiness, energy, onSelect, onDelete }: ChibiProps) {
+// Add keyframes for the pulsing glow
+const pulseGlowStyle = `
+  @keyframes pulseGlow {
+    0% { 
+      box-shadow: 0 0 2px #29cc29,
+                 0 0 4px #29cc29,
+                 0 0 6px rgba(41, 204, 41, 0.7),
+                 0 0 8px rgba(41, 204, 41, 0.6);
+      background: rgba(41, 204, 41, 0.15);
+      opacity: 0.3;
+    }
+    50% { 
+      box-shadow: 0 0 4px #29cc29,
+                 0 0 8px #29cc29,
+                 0 0 12px rgba(41, 204, 41, 0.7),
+                 0 0 24px rgba(41, 204, 41, 0.6);
+      background: rgba(41, 204, 41, 0.3);
+      opacity: 1;
+    }
+    100% { 
+      box-shadow: 0 0 2px #29cc29,
+                 0 0 4px #29cc29,
+                 0 0 6px rgba(41, 204, 41, 0.7),
+                 0 0 8px rgba(41, 204, 41, 0.6);
+      background: rgba(41, 204, 41, 0.15);
+      opacity: 0.3;
+    }
+  }
+
+  @keyframes pulseGlowPink {
+    0% { 
+      box-shadow: 0 0 2px #ff69b4,
+                 0 0 4px #ff69b4,
+                 0 0 6px rgba(255, 105, 180, 0.7),
+                 0 0 8px rgba(255, 105, 180, 0.6);
+      background: rgba(255, 105, 180, 0.15);
+      opacity: 0.3;
+    }
+    50% { 
+      box-shadow: 0 0 4px #ff69b4,
+                 0 0 8px #ff69b4,
+                 0 0 12px rgba(255, 105, 180, 0.7),
+                 0 0 24px rgba(255, 105, 180, 0.6);
+      background: rgba(255, 105, 180, 0.3);
+      opacity: 1;
+    }
+    100% { 
+      box-shadow: 0 0 2px #ff69b4,
+                 0 0 4px #ff69b4,
+                 0 0 6px rgba(255, 105, 180, 0.7),
+                 0 0 8px rgba(255, 105, 180, 0.6);
+      background: rgba(255, 105, 180, 0.15);
+      opacity: 0.3;
+    }
+  }
+
+  .pulse-glow-green {
+    animation: pulseGlow 3s infinite;
+    border-radius: 60%;
+    position: relative;
+    z-index: 1;
+  }
+
+  .pulse-glow-pink {
+    animation: pulseGlowPink 3s infinite;
+    border-radius: 60%;
+    position: relative;
+    z-index: 1;
+  }
+
+  .heart-icon {
+    opacity: 0.1;
+    transition: opacity 0.3s ease;
+  }
+
+  .heart-icon.active {
+    opacity: 1;
+  }
+`;
+
+export function Chibi({ id, name, image, tasks = [], onSelect, onDelete }: ChibiProps) {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [imageError, setImageError] = useState(false);
+  const { stats } = useChibiStats(id || '');
 
   console.log('Chibi component rendered with props:', { id, name, onDelete });
 
@@ -35,6 +121,8 @@ export function Chibi({ id, name, image, happiness, energy, onSelect, onDelete }
     setImageError(true);
   };
 
+  const activeTasks = tasks.filter(task => !task.completed).length;
+
   return (
     <div className="flex flex-col items-center p-4">
       <div className="text-center w-full bg-[#d4d0c8] bg-opacity-90 rounded-lg p-6 shadow-md relative">
@@ -42,6 +130,28 @@ export function Chibi({ id, name, image, happiness, energy, onSelect, onDelete }
           className="absolute top-2 right-2 h-6 w-6 text-red-500 cursor-pointer hover:text-red-700 z-10" 
           onClick={handleDeleteClick}
         />
+        <div className="absolute top-2 right-10 flex gap-1">
+          {Array.from({ length: 4 }).map((_, index) => (
+            <Heart
+              key={`deadline-${index}`}
+              className={cn(
+                "h-4 w-4 text-[#ff69b4] fill-[#ff69b4] heart-icon",
+                index < (stats?.deadlineHearts || 0) && "active pulse-glow-pink"
+              )}
+            />
+          ))}
+        </div>
+        <div className="absolute top-2 left-2 flex gap-1">
+          {Array.from({ length: 4 }).map((_, index) => (
+            <Heart
+              key={`notes-${index}`}
+              className={cn(
+                "h-4 w-4 text-[#33ff33] fill-[#33ff33] heart-icon",
+                index < (stats?.noteHearts || 0) && "active pulse-glow-green"
+              )}
+            />
+          ))}
+        </div>
         <div 
           className="relative w-48 h-48 mx-auto cursor-pointer transform transition-transform hover:scale-105 mb-4"
           onClick={onSelect}
@@ -64,22 +174,10 @@ export function Chibi({ id, name, image, happiness, energy, onSelect, onDelete }
         <div className="space-y-4 w-full">
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2 font-vt323 text-2xl text-black min-w-[140px] text-left">
-              <span>Love:</span>
+              <span># Tasks:</span>
             </div>
-            <div className="flex-1 h-6 bg-[#1a1a1a] rounded-sm overflow-hidden border border-black">
-              <div
-                className="h-full bg-[#33ff33] transition-all duration-300"
-                style={{ width: `${happiness}%` }}
-              />
-            </div>
-          </div>
-          <div className="flex items-center gap-4">
-            <span className="font-vt323 text-2xl text-black min-w-[140px] text-left">Energy:</span>
-            <div className="flex-1 h-6 bg-[#1a1a1a] rounded-sm overflow-hidden border border-black">
-              <div
-                className="h-full bg-[#33ff33] transition-all duration-300"
-                style={{ width: `${energy}%` }}
-              />
+            <div className="flex-1 h-6 bg-[#1a1a1a] rounded-sm overflow-hidden border border-black flex items-center justify-center">
+              <span className="text-white font-vt323 text-xl">{activeTasks}</span>
             </div>
           </div>
         </div>
@@ -101,6 +199,9 @@ export function Chibi({ id, name, image, happiness, energy, onSelect, onDelete }
         }}
         chibiName={name}
       />
+
+      {/* Add the keyframes style to the document */}
+      <style jsx global>{pulseGlowStyle}</style>
     </div>
   );
 } 

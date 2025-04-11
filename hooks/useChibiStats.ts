@@ -3,72 +3,127 @@ import { supabase } from '@/lib/supabase';
 
 export interface ChibiStats {
   id: string;
-  happiness: number;
-  energy: number;
+  deadlineHearts: number;
+  noteHearts: number;
   last_fed: Date;
-  tasks_completed: number;
+}
+
+interface Task {
+  id: string;
+  notes?: string;
+  due_date?: string;
+  completed: boolean;
 }
 
 export function useChibiStats(chibiId: string) {
   const [stats, setStats] = useState<ChibiStats | null>(null);
   const [loading, setLoading] = useState(true);
+  const [tasks, setTasks] = useState<Task[]>([]);
 
-  // Fetch initial stats
-  useEffect(() => {
-    const fetchStats = async () => {
-      try {
-        const { data, error } = await supabase
-          .from('chibis')
-          .select('happiness, energy, last_fed')
-          .eq('id', chibiId)
-          .single();
-
-        if (error) throw error;
-
-        setStats({
-          id: chibiId,
-          happiness: data.happiness,
-          energy: data.energy,
-          last_fed: new Date(data.last_fed),
-          tasks_completed: 0 // We'll calculate this separately
-        });
-      } catch (error) {
-        console.error('Error fetching chibi stats:', error);
-      } finally {
-        setLoading(false);
-      }
+  // Simplified heart calculation - just check for non-empty content
+  const calculateHearts = (tasks: Task[]) => {
+    const tasksWithDeadlines = tasks.filter(task => task.due_date && !task.completed).length;
+    const tasksWithNotes = tasks.filter(task => task.notes && task.notes.trim() !== '' && !task.completed).length;
+    
+    return {
+      deadlineHearts: tasksWithDeadlines,
+      noteHearts: tasksWithNotes
     };
+  };
 
-    fetchStats();
+  // Update stats immediately based on task changes
+  const updateTask = (taskId: string, updates: Partial<Task>) => {
+    setTasks(prevTasks => {
+      const newTasks = prevTasks.map(task => 
+        task.id === taskId ? { ...task, ...updates } : task
+      );
+      
+      const { deadlineHearts, noteHearts } = calculateHearts(newTasks);
+      setStats(prev => prev ? {
+        ...prev,
+        deadlineHearts,
+        noteHearts
+      } : null);
+      
+      return newTasks;
+    });
+  };
+
+  // Fetch stats function
+  const fetchStats = async () => {
+    try {
+      const { data: tasks, error: tasksError } = await supabase
+        .from('tasks')
+        .select('*')
+        .eq('chibi_id', chibiId)
+        .eq('completed', false);
+
+      if (tasksError) throw tasksError;
+
+      setTasks(tasks || []);
+      const { deadlineHearts, noteHearts } = calculateHearts(tasks || []);
+
+      setStats({
+        id: chibiId,
+        deadlineHearts,
+        noteHearts,
+        last_fed: new Date()
+      });
+    } catch (error) {
+      console.error('Error fetching chibi stats:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Initial fetch
+  useEffect(() => {
+    if (chibiId) {
+      fetchStats();
+    }
   }, [chibiId]);
 
-  // Subscribe to real-time updates
+  // Subscribe to task changes
   useEffect(() => {
-    const subscription = supabase
-      .channel(`chibi_stats_${chibiId}`)
+    if (!chibiId) return;
+
+    const channel = supabase
+      .channel(`tasks_${chibiId}`)
       .on(
         'postgres_changes',
         {
-          event: 'UPDATE',
+          event: '*',
           schema: 'public',
-          table: 'chibis',
-          filter: `id=eq.${chibiId}`
+          table: 'tasks',
+          filter: `chibi_id=eq.${chibiId}`
         },
         (payload) => {
-          setStats(prev => ({
-            ...prev!,
-            happiness: payload.new.happiness,
-            energy: payload.new.energy,
-            last_fed: new Date(payload.new.last_fed)
-          }));
+          // Handle different types of changes
+          if (payload.eventType === 'INSERT') {
+            setTasks(prev => [...prev, payload.new as Task]);
+          } else if (payload.eventType === 'UPDATE') {
+            setTasks(prev => prev.map(task => 
+              task.id === payload.new.id ? { ...task, ...payload.new } : task
+            ));
+          } else if (payload.eventType === 'DELETE') {
+            setTasks(prev => prev.filter(task => task.id !== payload.old.id));
+          }
+
+          // Recalculate hearts after any change
+          const { deadlineHearts, noteHearts } = calculateHearts(tasks);
+          setStats(prev => prev ? {
+            ...prev,
+            deadlineHearts,
+            noteHearts
+          } : null);
         }
       )
       .subscribe();
 
     return () => {
-      subscription.unsubscribe();
+      channel.unsubscribe();
     };
-  }, [chibiId]);
+  }, [chibiId, tasks]);
 
-  return { stats, loading };
+  return { stats, loading, updateTask };
 } 
