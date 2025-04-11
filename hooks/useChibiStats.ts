@@ -16,14 +16,32 @@ interface Task {
   notes?: string;
   due_date?: string;
   completed: boolean;
-  energy?: number;
-  hunger?: number;
+  text: string;
 }
 
-export function useChibiStats(chibiId: string) {
+interface UpdateTaskParams {
+  notes?: string;
+  due_date?: string;
+  completed?: boolean;
+  text?: string;
+}
+
+interface ChibiStatsHookReturn {
+  stats: ChibiStats | null;
+  updateTask: (taskId: string, updates: UpdateTaskParams) => Promise<void>;
+}
+
+export function useChibiStats(chibiId: string, tasks: Task[] = []): ChibiStatsHookReturn {
   const [stats, setStats] = useState<ChibiStats | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [tasks, setTasks] = useState<Task[]>([]);
+
+  // Calculate energy based on number of tasks
+  const calculateEnergy = (taskCount: number): number => {
+    if (taskCount === 0) return 0;
+    if (taskCount === 1) return 25;
+    if (taskCount === 2) return 50;
+    if (taskCount === 3) return 75;
+    return 100; // 4 or more tasks
+  };
 
   // Simplified heart calculation - just check for non-empty content
   const calculateHearts = (tasks: Task[]) => {
@@ -45,8 +63,8 @@ export function useChibiStats(chibiId: string) {
     };
   };
 
-  // Update stats immediately based on task changes
-  const updateTask = async (taskId: string, updates: Partial<Task>) => {
+  // Update task in database
+  const updateTask = async (taskId: string, updates: UpdateTaskParams): Promise<void> => {
     try {
       const { error } = await supabase
         .from('tasks')
@@ -54,154 +72,28 @@ export function useChibiStats(chibiId: string) {
         .eq('id', taskId);
 
       if (error) throw error;
-
-      // If task is completed, update chibi stats
-      if (updates.completed) {
-        const task = tasks.find(t => t.id === taskId);
-        if (task) {
-          const newEnergy = Math.min(100, (stats?.energy || 0) + (task.energy || 0));
-          const newHunger = Math.min(100, (stats?.hunger || 0) + (task.hunger || 0));
-          
-          await updateChibiStats({
-            energy: newEnergy,
-            hunger: newHunger
-          });
-        }
-      }
     } catch (error) {
       console.error('Error updating task:', error);
     }
   };
 
-  // Fetch stats function
-  const fetchStats = async () => {
-    try {
-      const { data: tasks, error: tasksError } = await supabase
-        .from('tasks')
-        .select('*')
-        .eq('chibi_id', chibiId)
-        .eq('completed', false);
-
-      if (tasksError) throw tasksError;
-
-      setTasks(tasks || []);
-      const { deadlineHearts, noteHearts } = calculateHearts(tasks || []);
-
-      // Fetch chibi stats including hunger
-      const { data: chibiData, error: chibiError } = await supabase
-        .from('chibis')
-        .select('energy, hunger')
-        .eq('id', chibiId)
-        .single();
-
-      if (chibiError) throw chibiError;
-
-      setStats({
-        id: chibiId,
-        deadlineHearts,
-        noteHearts,
-        last_fed: new Date(),
-        health: 50, // Default health value
-        energy: chibiData?.energy || 100, // Use stored energy or default to 100
-        hunger: chibiData?.hunger || 0    // Use stored hunger or default to 0
-      });
-    } catch (error) {
-      console.error('Error fetching chibi stats:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Initial fetch
+  // Update stats whenever tasks change
   useEffect(() => {
-    if (chibiId) {
-      fetchStats();
-    }
-  }, [chibiId]);
+    const uncompletedTaskCount = tasks.filter(task => !task.completed).length;
+    const { deadlineHearts, noteHearts } = calculateHearts(tasks);
+    const energy = calculateEnergy(uncompletedTaskCount);
+    const hunger = 100 - energy;
 
-  // Subscribe to task changes
-  useEffect(() => {
-    if (!chibiId) return;
+    setStats({
+      id: chibiId,
+      energy,
+      hunger,
+      deadlineHearts,
+      noteHearts,
+      last_fed: new Date(),
+      health: 100
+    });
+  }, [tasks, chibiId]);
 
-    const taskChannel = supabase
-      .channel(`tasks_${chibiId}`)
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'tasks',
-          filter: `chibi_id=eq.${chibiId}`
-        },
-        (payload) => {
-          // Handle different types of changes
-          if (payload.eventType === 'INSERT') {
-            setTasks(prev => [...prev, payload.new as Task]);
-          } else if (payload.eventType === 'UPDATE') {
-            setTasks(prev => prev.map(task => 
-              task.id === payload.new.id ? { ...task, ...payload.new } : task
-            ));
-          } else if (payload.eventType === 'DELETE') {
-            setTasks(prev => prev.filter(task => task.id !== payload.old.id));
-          }
-
-          // Recalculate hearts after any change
-          const { deadlineHearts, noteHearts } = calculateHearts(tasks);
-          setStats(prev => prev ? {
-            ...prev,
-            deadlineHearts,
-            noteHearts
-          } : null);
-        }
-      )
-      .subscribe();
-
-    // Subscribe to chibi stats changes
-    const chibiChannel = supabase
-      .channel(`chibis_${chibiId}`)
-      .on(
-        'postgres_changes',
-        {
-          event: 'UPDATE',
-          schema: 'public',
-          table: 'chibis',
-          filter: `id=eq.${chibiId}`
-        },
-        (payload) => {
-          if (payload.eventType === 'UPDATE') {
-            setStats(prev => prev ? {
-              ...prev,
-              energy: payload.new.energy,
-              hunger: payload.new.hunger
-            } : null);
-          }
-        }
-      )
-      .subscribe();
-
-    return () => {
-      taskChannel.unsubscribe();
-      chibiChannel.unsubscribe();
-    };
-  }, [chibiId, tasks]);
-
-  const updateChibiStats = async (updates: Partial<ChibiStats>) => {
-    try {
-      const { error } = await supabase
-        .from('chibis')
-        .update({
-          energy: updates.energy,
-          hunger: updates.hunger
-        })
-        .eq('id', chibiId);
-
-      if (error) throw error;
-
-      setStats(prev => prev ? { ...prev, ...updates } : null);
-    } catch (error) {
-      console.error('Error updating chibi stats:', error);
-    }
-  };
-
-  return { stats, loading, updateTask, updateChibiStats };
+  return { stats, updateTask };
 } 

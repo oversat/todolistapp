@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Check, Edit2, Trash2, MessageSquare, Clock } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useChibiStats } from '@/hooks/useChibiStats';
+import { useChibiStats, ChibiStats } from '@/hooks/useChibiStats';
 
 // Add keyframes for the pulsing glow
 const pulseGlowStyle = `
@@ -71,33 +71,29 @@ const pulseGlowStyle = `
 interface TaskProps {
   id: string;
   text: string;
-  completed?: boolean;
-  disabled?: boolean;
+  completed: boolean;
+  chibiId: string;
   notes?: string;
   due_date?: string;
-  created_at: string;
-  chibiId?: string;
-  onComplete?: () => void;
-  onEdit?: () => void;
-  onDelete?: () => void;
-  onNotesChange?: (notes: string) => void;
-  onDueDateChange?: (date: string) => void;
+  onComplete: () => void;
+  onEdit: () => void;
+  onDelete: () => void;
+  onNotesChange: (notes: string) => void;
+  onDueDateChange: (date: string) => void;
 }
 
 export function Task({
   id,
   text,
   completed,
-  disabled,
-  notes = '',
-  due_date,
-  created_at,
   chibiId,
+  notes,
+  due_date,
   onComplete,
   onEdit,
   onDelete,
   onNotesChange,
-  onDueDateChange,
+  onDueDateChange
 }: TaskProps) {
   const [localNotes, setLocalNotes] = useState(notes);
   const [hasUnsavedNotes, setHasUnsavedNotes] = useState(false);
@@ -106,7 +102,7 @@ export function Task({
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [localDueDate, setLocalDueDate] = useState(due_date || '');
   const [isSavingDate, setIsSavingDate] = useState(false);
-  const { stats, updateTask, updateChibiStats } = useChibiStats(chibiId || '');
+  const { stats, updateTask, setStats } = useChibiStats(chibiId || '');
   const { stats: chibiStats } = useChibiStats(chibiId || '');
   const [localHearts, setLocalHearts] = useState({
     deadlineHearts: stats?.deadlineHearts || 0,
@@ -202,14 +198,13 @@ export function Task({
 
   const handleComplete = async () => {
     if (onComplete) {
-      // Update chibi stats before completing the task
-      if (chibiId && stats) {
-        await updateChibiStats({
-          energy: Math.max(0, (stats.energy || 0) - 10),  // Decrease energy
-          hunger: Math.min(100, (stats.hunger || 0) + 10) // Increase hunger
-        });
+      try {
+        // Just mark the task as completed
+        await updateTask(id, { completed: true });
+        onComplete();
+      } catch (error) {
+        console.error('Failed to complete task:', error);
       }
-      onComplete();
     }
   };
 

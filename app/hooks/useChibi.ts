@@ -9,6 +9,7 @@ export interface ChibiData {
   image: string;
   happiness: number;
   energy: number;
+  hunger: number;
   tasks: TaskData[];
   last_fed: string;
   created_at: string;
@@ -126,6 +127,8 @@ export function useChibi() {
   // Complete a task
   const completeTask = async (taskId: string) => {
     try {
+      console.log('Task completion started:', { taskId });
+      
       const { error } = await supabase
         .from('tasks')
         .update({
@@ -135,6 +138,8 @@ export function useChibi() {
         .eq('id', taskId);
 
       if (error) throw error;
+
+      console.log('Task completed successfully:', { taskId });
       await fetchChibis();
     } catch (error) {
       console.error('Error completing task:', error);
@@ -148,15 +153,49 @@ export function useChibi() {
     const chibi = chibis[currentChibiIndex];
 
     try {
+      console.log('Feeding chibi - Before update:', {
+        chibiId: chibi.id,
+        currentHunger: chibi.hunger,
+        currentEnergy: chibi.energy
+      });
+
+      // Decrease hunger by 20%, increase energy by 20%
+      const newHunger = Math.max(0, (chibi.hunger || 100) - 20);
+      const newEnergy = Math.min(100, (chibi.energy || 0) + 20);
+
+      console.log('Feeding chibi - Updating stats:', {
+        chibiId: chibi.id,
+        newHunger,
+        newEnergy
+      });
+
       const { error } = await supabase
         .from('chibis')
         .update({
-          happiness: Math.min(100, chibi.happiness + 10),
+          hunger: newHunger,
+          energy: newEnergy,
           last_fed: new Date().toISOString()
         })
         .eq('id', chibi.id);
 
       if (error) throw error;
+
+      console.log('Feeding chibi - Stats updated successfully:', {
+        chibiId: chibi.id,
+        newHunger,
+        newEnergy
+      });
+
+      // Update local state immediately for better responsiveness
+      setChibis(prevChibis => 
+        prevChibis.map(c => 
+          c.id === chibi.id 
+            ? { ...c, hunger: newHunger, energy: newEnergy }
+            : c
+        )
+      );
+
+      // Then fetch fresh data from server
       await fetchChibis();
     } catch (error) {
       console.error('Error feeding chibi:', error);
