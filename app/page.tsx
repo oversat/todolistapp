@@ -8,7 +8,7 @@ import { EditTaskDialog } from '@/components/task/EditTaskDialog';
 import { ResetDataDialog } from '@/components/ui/ResetDataDialog';
 import { Ghost, Gamepad2, Moon, Settings, LogOut, Heart } from 'lucide-react';
 import { TabsRoot as Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/navigation/tabs';
-import { CHIBI_IMAGES, ChibiType } from '@/lib/utils';
+import { CHIBI_IMAGES } from '@/lib/utils';
 import { Chibi } from '@/components/chibi/Chibi';
 import { useChibi, ChibiData } from './hooks/useChibi';
 import { useSettings } from '@/hooks/useSettings';
@@ -111,6 +111,7 @@ export default function Home() {
   const [deletingTaskId, setDeletingTaskId] = useState<string | null>(null);
   const [chibiToDelete, setChibiToDelete] = useState<ChibiData | null>(null);
   const [newTaskText, setNewTaskText] = useState('');
+  type ChibiType = keyof typeof CHIBI_IMAGES;
   const [selectedChibiType, setSelectedChibiType] = useState<ChibiType>('fox');
   const [newChibiName, setNewChibiName] = useState('');
   const [showCreateForm, setShowCreateForm] = useState(false);
