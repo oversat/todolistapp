@@ -259,30 +259,37 @@ export default function Home() {
                   </button>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 p-4">
-                  {chibis.map((chibi, index) => (
-                    <div 
-                      key={chibi.id}
-                      className={`cursor-pointer transition-transform hover:scale-105 ${
-                        currentChibi?.id === chibi.id ? 'ring-4 ring-neon-blue rounded-lg' : ''
-                      }`}
-                      onClick={() => setCurrentChibiIndex(index)}
-                    >
-                      <Chibi
-                        id={chibi.id}
-                        name={chibi.name}
-                        image={CHIBI_IMAGES[chibi.type as keyof typeof CHIBI_IMAGES]}
-                        tasks={chibi.tasks}
-                        onSelect={() => {
-                          setCurrentChibiIndex(index);
-                          setMainTab('awake');
-                        }}
-                        onDelete={() => {
-                          console.log('Delete button clicked for chibi:', chibi);
-                          setChibiToDelete(chibi);
-                        }}
-                      />
-                    </div>
-                  ))}
+                  {chibis.map((chibi, index) => {
+                    console.log('Rendering chibi in grid:', {
+                      name: chibi.name,
+                      type: chibi.type,
+                      imagePath: CHIBI_IMAGES[chibi.type as keyof typeof CHIBI_IMAGES]
+                    });
+                    return (
+                      <div 
+                        key={chibi.id}
+                        className={`cursor-pointer transition-transform hover:scale-105 ${
+                          currentChibi?.id === chibi.id ? 'ring-4 ring-neon-blue rounded-lg' : ''
+                        }`}
+                        onClick={() => setCurrentChibiIndex(index)}
+                      >
+                        <Chibi
+                          id={chibi.id}
+                          name={chibi.name}
+                          image={CHIBI_IMAGES[chibi.type as keyof typeof CHIBI_IMAGES]}
+                          tasks={chibi.tasks}
+                          onSelect={() => {
+                            setCurrentChibiIndex(index);
+                            setMainTab('awake');
+                          }}
+                          onDelete={() => {
+                            console.log('Delete button clicked for chibi:', chibi);
+                            setChibiToDelete(chibi);
+                          }}
+                        />
+                      </div>
+                    );
+                  })}
                 </div>
               </>
             )}
@@ -294,9 +301,9 @@ export default function Home() {
             <Window title={`${currentChibi.name}'s Tasks`} className="mb-6" zIndex={zLayers.windowFrame}>
               <div className="h-screen flex flex-col">
                 {/* Pet Display Area */}
-                <div className="h-[30vh] relative overflow-hidden">
+                <div className="h-[30vh] relative overflow-hidden bg-[#416fa0]">
                   {/* Background Layer */}
-                  <div className="absolute inset-0 bg-[#000080]" style={{ zIndex: 1 }} />
+                  <div className="absolute inset-0 bg-[#416fa0]" style={{ zIndex: 1 }} />
 
                   {/* Chibi SVG Layer - contained within the window content area */}
                   <div 
@@ -496,36 +503,6 @@ export default function Home() {
         <TabsContent value="settings" className="mt-6">
           <Window title="Settings.ini" className="mb-6" zIndex={zLayers.windowFrame}>
             <div className="space-y-4">
-              <div className="flex justify-between items-center p-2 bg-black/70 rounded">
-                <span className="font-vt323 text-lg">Dark Theme</span>
-                <input
-                  type="checkbox"
-                  checked={settings.darkTheme}
-                  onChange={toggleDarkTheme}
-                  className="toggle"
-                />
-              </div>
-
-              <div className="flex justify-between items-center p-2 bg-black/70 rounded">
-                <span className="font-vt323 text-lg">Notifications</span>
-                <input
-                  type="checkbox"
-                  checked={settings.notifications}
-                  onChange={toggleNotifications}
-                  className="toggle"
-                />
-              </div>
-
-              <div className="flex justify-between items-center p-2 bg-black/70 rounded">
-                <span className="font-vt323 text-lg">Sound Effects</span>
-                <input
-                  type="checkbox"
-                  checked={settings.soundEffects}
-                  onChange={toggleSoundEffects}
-                  className="toggle"
-                />
-              </div>
-
               <button
                 onClick={() => setShowResetDialog(true)}
                 className="bg-red-500 text-white px-4 py-2 w-full mt-8"
