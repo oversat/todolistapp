@@ -58,6 +58,17 @@ export function ChibiHealthDisplay({ chibiId }: ChibiHealthDisplayProps) {
           </div>
         </div>
 
+        {/* Hunger Level */}
+        <div className="flex items-center gap-1">
+          <span className="text-sm min-w-[80px]">Hunger</span>
+          <div className="flex-1 h-3 bg-[#1a1a1a] rounded-sm overflow-hidden">
+            <div 
+              className="h-full bg-[#ff69b4]" 
+              style={{ width: `${100 - (stats?.hunger || 0)}%` }}
+            />
+          </div>
+        </div>
+
         {/* Discipline (Task Completion) */}
         <div className="flex items-center gap-1">
           <span className="text-sm min-w-[80px]">Discipline</span>

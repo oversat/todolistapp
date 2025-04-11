@@ -9,6 +9,8 @@ interface ChibiProps {
   id?: string;
   name: string;
   image: string;
+  imageLayer1?: string;
+  imageLayer2?: string;
   tasks?: Array<{
     id: string;
     text: string;
@@ -103,7 +105,9 @@ const pulseGlowStyle = `
 export function Chibi({ 
   id, 
   name, 
-  image, 
+  image,
+  imageLayer1,
+  imageLayer2, 
   tasks = [], 
   happiness = 0,
   energy = 0,
@@ -112,13 +116,31 @@ export function Chibi({
 }: ChibiProps) {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [imageError, setImageError] = useState(false);
+  const [imagesLoaded, setImagesLoaded] = useState({ layer1: false, layer2: false });
   const { stats } = useChibiStats(id || '');
 
   // Cap the values at 4
   const cappedDeadlineHearts = Math.min(stats?.deadlineHearts || 0, 4);
   const cappedNoteHearts = Math.min(stats?.noteHearts || 0, 4);
 
-  console.log('Chibi component rendered with props:', { id, name, onDelete });
+  console.log('Chibi component rendered with props:', { 
+    id, 
+    name, 
+    image,
+    imageLayer1,
+    imageLayer2,
+    imagesLoaded 
+  });
+
+  const handleImageLoad = (layer: 'layer1' | 'layer2') => {
+    console.log(`Image ${layer} loaded successfully`);
+    setImagesLoaded(prev => ({ ...prev, [layer]: true }));
+  };
+
+  const handleImageError = (layer?: string) => {
+    console.error(`Image failed to load${layer ? ` for ${layer}` : ''}`);
+    setImageError(true);
+  };
 
   const handleDeleteClick = (e: React.MouseEvent) => {
     console.log('Delete button clicked');
@@ -129,11 +151,6 @@ export function Chibi({
     } else {
       console.log('No onDelete handler provided');
     }
-  };
-
-  const handleImageError = () => {
-    console.log('Image failed to load');
-    setImageError(true);
   };
 
   const activeTasks = tasks.filter(task => !task.completed).length;
@@ -172,13 +189,18 @@ export function Chibi({
           onClick={onSelect}
         >
           {!imageError ? (
-            <Image
-              src={image}
-              alt={name}
-              fill
-              className="object-contain"
-              onError={handleImageError}
-            />
+            <div className="relative w-full h-full">
+              <Image
+                src={image}
+                alt={name}
+                width={192}
+                height={192}
+                className="object-contain"
+                onError={() => handleImageError()}
+                priority
+                unoptimized
+              />
+            </div>
           ) : (
             <div className="w-full h-full flex items-center justify-center bg-gray-200">
               <span className="text-gray-500">Image not available</span>

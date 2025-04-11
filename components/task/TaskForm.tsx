@@ -10,6 +10,7 @@ import { supabase } from '@/lib/supabase';
 import { Textarea } from '@/components/elements/textarea';
 import { Calendar } from '@/components/data/calendar';
 import { format } from 'date-fns';
+import { useChibiStats } from '@/hooks/useChibiStats';
 
 interface TaskFormProps {
   chibiId: string;
@@ -22,6 +23,7 @@ interface TaskFormProps {
 
 export function TaskForm({ chibiId, onTaskCreated, onImmediateUpdate }: TaskFormProps) {
   const { toast } = useToast();
+  const { stats, updateTask, updateChibiStats } = useChibiStats(chibiId);
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     title: '',
@@ -48,10 +50,20 @@ export function TaskForm({ chibiId, onTaskCreated, onImmediateUpdate }: TaskForm
             description: formData.description,
             due_date: formData.dueDate,
             notes: formData.notes,
+            energy: 10,  // Default energy value for task
+            hunger: 10   // Default hunger value for task
           },
         ]);
 
       if (error) throw error;
+
+      // Update energy and hunger
+      if (stats) {
+        await updateChibiStats({
+          energy: Math.min(100, (stats.energy || 0) + 10),  // Increase energy
+          hunger: Math.max(0, (stats.hunger || 0) - 10)     // Decrease hunger
+        });
+      }
 
       // Notify parent of immediate update if needed
       if (onImmediateUpdate) {

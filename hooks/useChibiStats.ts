@@ -8,6 +8,7 @@ export interface ChibiStats {
   last_fed: Date;
   health: number;
   energy: number;
+  hunger: number;
 }
 
 interface Task {
@@ -15,6 +16,8 @@ interface Task {
   notes?: string;
   due_date?: string;
   completed: boolean;
+  energy?: number;
+  hunger?: number;
 }
 
 export function useChibiStats(chibiId: string) {
@@ -43,21 +46,31 @@ export function useChibiStats(chibiId: string) {
   };
 
   // Update stats immediately based on task changes
-  const updateTask = (taskId: string, updates: Partial<Task>) => {
-    setTasks(prevTasks => {
-      const newTasks = prevTasks.map(task => 
-        task.id === taskId ? { ...task, ...updates } : task
-      );
-      
-      const { deadlineHearts, noteHearts } = calculateHearts(newTasks);
-      setStats(prev => prev ? {
-        ...prev,
-        deadlineHearts,
-        noteHearts
-      } : null);
-      
-      return newTasks;
-    });
+  const updateTask = async (taskId: string, updates: Partial<Task>) => {
+    try {
+      const { error } = await supabase
+        .from('tasks')
+        .update(updates)
+        .eq('id', taskId);
+
+      if (error) throw error;
+
+      // If task is completed, update chibi stats
+      if (updates.completed) {
+        const task = tasks.find(t => t.id === taskId);
+        if (task) {
+          const newEnergy = Math.min(100, (stats?.energy || 0) + (task.energy || 0));
+          const newHunger = Math.min(100, (stats?.hunger || 0) + (task.hunger || 0));
+          
+          await updateChibiStats({
+            energy: newEnergy,
+            hunger: newHunger
+          });
+        }
+      }
+    } catch (error) {
+      console.error('Error updating task:', error);
+    }
   };
 
   // Fetch stats function
@@ -74,13 +87,23 @@ export function useChibiStats(chibiId: string) {
       setTasks(tasks || []);
       const { deadlineHearts, noteHearts } = calculateHearts(tasks || []);
 
+      // Fetch chibi stats including hunger
+      const { data: chibiData, error: chibiError } = await supabase
+        .from('chibis')
+        .select('energy, hunger')
+        .eq('id', chibiId)
+        .single();
+
+      if (chibiError) throw chibiError;
+
       setStats({
         id: chibiId,
         deadlineHearts,
         noteHearts,
         last_fed: new Date(),
         health: 50, // Default health value
-        energy: 50  // Default energy value
+        energy: chibiData?.energy || 100, // Use stored energy or default to 100
+        hunger: chibiData?.hunger || 0    // Use stored hunger or default to 0
       });
     } catch (error) {
       console.error('Error fetching chibi stats:', error);
@@ -100,7 +123,7 @@ export function useChibiStats(chibiId: string) {
   useEffect(() => {
     if (!chibiId) return;
 
-    const channel = supabase
+    const taskChannel = supabase
       .channel(`tasks_${chibiId}`)
       .on(
         'postgres_changes',
@@ -133,10 +156,52 @@ export function useChibiStats(chibiId: string) {
       )
       .subscribe();
 
+    // Subscribe to chibi stats changes
+    const chibiChannel = supabase
+      .channel(`chibis_${chibiId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'chibis',
+          filter: `id=eq.${chibiId}`
+        },
+        (payload) => {
+          if (payload.eventType === 'UPDATE') {
+            setStats(prev => prev ? {
+              ...prev,
+              energy: payload.new.energy,
+              hunger: payload.new.hunger
+            } : null);
+          }
+        }
+      )
+      .subscribe();
+
     return () => {
-      channel.unsubscribe();
+      taskChannel.unsubscribe();
+      chibiChannel.unsubscribe();
     };
   }, [chibiId, tasks]);
 
-  return { stats, loading, updateTask };
+  const updateChibiStats = async (updates: Partial<ChibiStats>) => {
+    try {
+      const { error } = await supabase
+        .from('chibis')
+        .update({
+          energy: updates.energy,
+          hunger: updates.hunger
+        })
+        .eq('id', chibiId);
+
+      if (error) throw error;
+
+      setStats(prev => prev ? { ...prev, ...updates } : null);
+    } catch (error) {
+      console.error('Error updating chibi stats:', error);
+    }
+  };
+
+  return { stats, loading, updateTask, updateChibiStats };
 } 

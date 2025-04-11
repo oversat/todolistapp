@@ -106,7 +106,7 @@ export function Task({
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [localDueDate, setLocalDueDate] = useState(due_date || '');
   const [isSavingDate, setIsSavingDate] = useState(false);
-  const { stats, updateTask } = useChibiStats(chibiId || '');
+  const { stats, updateTask, updateChibiStats } = useChibiStats(chibiId || '');
   const { stats: chibiStats } = useChibiStats(chibiId || '');
   const [localHearts, setLocalHearts] = useState({
     deadlineHearts: stats?.deadlineHearts || 0,
@@ -200,6 +200,19 @@ export function Task({
     });
   };
 
+  const handleComplete = async () => {
+    if (onComplete) {
+      // Update chibi stats before completing the task
+      if (chibiId && stats) {
+        await updateChibiStats({
+          energy: Math.max(0, (stats.energy || 0) - 10),  // Decrease energy
+          hunger: Math.min(100, (stats.hunger || 0) + 10) // Increase hunger
+        });
+      }
+      onComplete();
+    }
+  };
+
   return (
     <div className={cn(
       'flex flex-col border-2 border-gray-400 bg-gray-200 relative',
@@ -261,7 +274,7 @@ export function Task({
         <div className="flex items-start gap-2">
           {/* Checkbox */}
           <button
-            onClick={onComplete}
+            onClick={handleComplete}
             disabled={disabled}
             className={cn(
               'w-4 h-4 border-2 border-gray-600 flex items-center justify-center bg-white',
