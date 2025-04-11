@@ -387,6 +387,130 @@ This data visualization system creates an engaging feedback loop where:
 4. Historical data helps users track their progress
 5. The calendar keeps everything organized and on schedule
 
+## Chatbot Assistant 🤖
+
+The application features an intelligent chatbot assistant that helps users manage their tasks and provides personalized support.
+
+### Features ✨
+
+1. **Task-Aware Responses**
+   - Real-time access to all tasks
+   - Contextual advice based on task status
+   - Due date awareness
+   - Notes integration
+   - Completion status tracking
+
+2. **Natural Language Interface**
+   - Conversational interaction
+   - Friendly and supportive tone
+   - Task-specific suggestions
+   - Progress tracking assistance
+   - Motivation and encouragement
+
+3. **Task Management Support**
+   - Task creation guidance
+   - Priority suggestions
+   - Due date reminders
+   - Progress tracking
+   - Task organization tips
+
+### Technical Implementation 🛠️
+
+1. **API Integration**
+   ```typescript
+   // Example request structure
+   {
+     chibiId: string;
+     chibiName: string;
+     message: string;
+     tasks: Array<{
+       id: string;
+       text: string;
+       completed: boolean;
+       due_date?: string;
+       notes?: string;
+     }>;
+   }
+   ```
+
+2. **Task Context Formatting**
+   ```typescript
+   const taskContext = tasks.map(task => {
+     const status = task.completed ? '✅ Completed' : '⏳ Pending';
+     const dueDate = task.due_date ? ` (Due: ${new Date(task.due_date).toLocaleDateString()})` : '';
+     const notes = task.notes ? `\n   Notes: ${task.notes}` : '';
+     return `- ${task.text}${dueDate}\n   ${status}${notes}`;
+   }).join('\n\n');
+   ```
+
+3. **System Prompt**
+   ```typescript
+   const systemMessage = `You are ${chibiName}'s AI assistant. You help manage tasks and provide friendly, supportive advice. Here are the current tasks:\n\n${taskContext}\n\nWhen responding, always consider the current tasks and provide relevant advice or suggestions based on them. If there are no tasks, acknowledge this and offer to help create some.`;
+   ```
+
+### User Interface 🖥️
+
+1. **Chat Window**
+   ```
+   +----------------------------------------+
+   | Chat with ${chibiName}                 |
+   |----------------------------------------|
+   | [Message history...]                   |
+   |                                        |
+   | [Input field] [Send]                   |
+   +----------------------------------------+
+   ```
+
+2. **Message Formatting**
+   - User messages aligned right
+   - Assistant messages aligned left
+   - Loading indicators for responses
+   - Error handling with user-friendly messages
+
+### Error Handling 🚨
+
+1. **API Errors**
+   - Graceful error messages
+   - User-friendly notifications
+   - Automatic retry mechanism
+   - Fallback responses
+
+2. **Data Validation**
+   - Task data verification
+   - Message sanitization
+   - Input validation
+   - Response formatting checks
+
+### Security 🔐
+
+1. **Data Protection**
+   - Secure API communication
+   - User authentication
+   - Data encryption
+   - Privacy-focused design
+
+2. **Access Control**
+   - User-specific chat sessions
+   - Task data isolation
+   - Secure message handling
+   - Protected API endpoints
+
+### Future Enhancements 🚀
+
+1. **Planned Features**
+   - Task creation through chat
+   - Due date modification
+   - Priority setting
+   - Task categorization
+   - Progress analytics
+
+2. **AI Improvements**
+   - Enhanced context awareness
+   - Better task suggestions
+   - Personalized advice
+   - Learning from user patterns
+   - Proactive reminders
+
 ## Required Implementation Files for Data Visualization 📊
 
 ### New Components

@@ -254,4 +254,31 @@
       transparent 2px
     );
   }
+
+  /* New glow animations */
+  .glow-green {
+    animation: glow-green 2s ease-in-out infinite;
+  }
+
+  .glow-pink {
+    animation: glow-pink 2s ease-in-out infinite;
+  }
+
+  @keyframes glow-green {
+    0%, 100% {
+      box-shadow: 0 0 5px var(--retro-green);
+    }
+    50% {
+      box-shadow: 0 0 15px var(--retro-green);
+    }
+  }
+
+  @keyframes glow-pink {
+    0%, 100% {
+      box-shadow: 0 0 5px var(--hot-pink);
+    }
+    50% {
+      box-shadow: 0 0 15px var(--hot-pink);
+    }
+  }
 }

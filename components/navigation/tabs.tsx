@@ -4,7 +4,29 @@ import React from 'react';
 import * as TabsPrimitive from '@radix-ui/react-tabs';
 import { cn } from '@/lib/utils';
 
-export const TabsRoot = TabsPrimitive.Root;
+type TabValue = 'chibis' | 'awake' | 'sleep' | 'settings';
+
+interface CustomTabsProps extends Omit<React.ComponentPropsWithoutRef<typeof TabsPrimitive.Root>, 'value' | 'onValueChange'> {
+  value: TabValue;
+  onValueChange: (value: TabValue) => void;
+}
+
+export const TabsRoot = React.forwardRef<React.ElementRef<typeof TabsPrimitive.Root>, CustomTabsProps>(
+  ({ className, value, onValueChange, ...props }, ref) => (
+    <TabsPrimitive.Root
+      ref={ref}
+      className={cn('w-full', className)}
+      value={value}
+      onValueChange={(newValue: string) => {
+        if (newValue === 'chibis' || newValue === 'awake' || newValue === 'sleep' || newValue === 'settings') {
+          onValueChange(newValue);
+        }
+      }}
+      {...props}
+    />
+  )
+);
+TabsRoot.displayName = TabsPrimitive.Root.displayName;
 
 export const TabsList = React.forwardRef<
   React.ElementRef<typeof TabsPrimitive.List>,
