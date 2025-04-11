@@ -47,6 +47,7 @@ interface Task {
   completed: boolean;
   notes?: string;
   due_date?: string;
+  created_at: string;
 }
 
 export default function Home() {
@@ -459,8 +460,13 @@ export default function Home() {
                             .map((task: Task) => (
                               <Task
                                 key={task.id}
-                                {...task}
+                                id={task.id}
+                                text={task.text}
+                                completed={task.completed}
                                 chibiId={currentChibi.id}
+                                notes={task.notes}
+                                due_date={task.due_date}
+                                created_at={task.created_at}
                                 onComplete={() => handleTaskComplete(task.id)}
                                 onEdit={() => {
                                   setEditingTaskId(task.id);
